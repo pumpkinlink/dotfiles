@@ -1,2 +1,4 @@
 $include /etc/inputrc
 set completion-ignore-case On
+set completion-prefix-display-length 4
+set show-all-if-ambiguous Off
