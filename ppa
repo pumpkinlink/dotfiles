@@ -1,0 +1,14 @@
+sudo apt-add-repository ppa:ubuntu-desktop/ubuntu-make
+sudo apt-add-repository ppa:fish-shell/release-2
+sudo apt-add-repository ppa:libreoffice/ppa
+sudo apt-add-repository ppa:webupd8team/java
+sudo apt-add-repository ppa:ravefinity-project/ppa
+sudo apt-add-repository ppa:tista/adapta
+sudo apt-add-repository ppa:neovim-ppa/stable
+sudo apt-add-repository ppa:umang/indicator-stickynotes
+sudo apt-add-repository ppa:noobslab/themes
+
+
+http://dl.google.com/linux/chrome/debstable/main
+http://repository.spotify.comstable/non-free
+
