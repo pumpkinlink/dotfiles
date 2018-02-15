@@ -1,7 +1,10 @@
-Name                     Version            Rev   Developer      Notes
-canonical-livepatch      7.24               26    canonical      -
-core                     16-2.30            3748  canonical      core
-intellij-idea-community  2017.3.2           19    jetbrains      classic
-remmina                  1.2.0-rcgit-26     511   remmina        -
-ubuntu-make              master             172   didrocks       classic
-vscode                   1.19.1-1513676564  23    flexiondotorg  classic
+snap install --classic intellij-idea-community
+snap install remmina
+snap install spotify
+snap install --classic vscode
+
+sudo addgroup --system docker
+sudo adduser $USER docker
+newgrp docker
+
+snap install --classic --revision=232 docker
