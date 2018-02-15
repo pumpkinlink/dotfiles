@@ -5,5 +5,5 @@ sudo apt-add-repository ppa:neovim-ppa/stable
 sudo apt-add-repository ppa:umang/indicator-stickynotes
 
 
-sudo apt-add-repository http://dl.google.com/linux/chrome/debstable/main
+sudo apt-add-repository http://dl.google.com/linux/chrome/deb
 sudo apt-add-repository http://ppa.launchpad.net/serge-rider/dbeaver-ce/ubuntu
