@@ -8,7 +8,6 @@ corebird \
 curl \
 dconf-editor \
 dh-autoreconf \
-docker \
 dos2unix \
 exuberant-ctags \
 franz \
