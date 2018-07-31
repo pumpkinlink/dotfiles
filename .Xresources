@@ -1,0 +1,12 @@
+XTerm*utf8: 1
+xterm*faceName: Monoid:size=9:antialias=true
+xterm*background: #000000
+xterm*foreground: #FFFFFF
+xterm*cursorColor: #d0d0d0
+customization: -color
+XTerm*termName:  xterm-256color
+XTerm*cursorBlink: true
+XTerm*ScrollKey: true
+XTerm*ScrollBar: true
+XTerm*visualBell: true
+XTerm*alternateScroll: true
