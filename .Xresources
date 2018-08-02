@@ -1,14 +1,19 @@
 XTerm*utf8: 1
 xterm*faceName: Monoid:size=9:antialias=true
-xterm*background: #080808
-xterm*foreground: #FFFFFF
+!XTerm*font: -*-Monoid-Regular-XtraLarge-Dollar-0-1-l-NoCalt--18-*-*-*-*-*-iso10646-1
+xterm*background: black
+xterm*foreground: white
 xterm*cursorColor: #d0d0d0
 customization: -color
 XTerm*termName:  xterm-256color
 XTerm*cursorBlink: true
 XTerm*ScrollKey: true
 XTerm*ScrollBar: true
-XTerm*ScrollBarBorder: 5
+XTerm*rightScrollBar: true
+XTerm.vt100.scrollbar.width: 10
+XTerm*scrollColor: #FF0000
+XTerm*borderColor: #454545
+XTerm*ScrollBarBorder: 4
 XTerm*visualBell: true
 XTerm*alternateScroll: true
 XTerm*metaSendsEscape: true
@@ -28,3 +33,4 @@ XTerm*metaSendsEscape: true
 *color13:    #AD7FA8
 *color14:    #34E2E2
 *color15:    #EEEEEC
+XTerm*vt100*geometry: 132x24
