@@ -1,0 +1,15 @@
+keycode 66 = Mode_switch
+
+
+keysym h = h H Left     Left        hstroke     Hstroke
+keysym j = j J Down     Down        dead_hook   dead_horn
+keysym k = k K Up       Up          kra         ampersand
+keysym l = l L Right    Right       lstroke     Lstroke
+
+keysym ccedilla = ccedilla Ccedilla Delete Delete dead_acute dead_doubleacute
+
+
+keysym u = u U Prior    Prior       downarrow   uparrow
+keysym i = i I Home     Home        rightarrow  idotless
+keysym o = o O End      End         oslash      Ooblique
+keysym p = p P Next     Next        thorn       THORN
