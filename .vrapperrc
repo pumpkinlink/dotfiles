@@ -1,0 +1,10 @@
+set ignorecase
+set smartcase
+set incsearch
+set scrolloff=3
+set clipboard=unnamedplus
+set wrapscan
+set nocleanindent
+set startnormalmode
+nnoremap ; :
+nnoremap : ;

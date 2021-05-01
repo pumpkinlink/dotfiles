@@ -1,0 +1,36 @@
+let mapleader=" "
+
+set clipboard+=unnamedplus
+set scrolloff=5
+set relativenumber
+set number
+set showmode
+set matchpairs+=<:>
+:au FileType c,cpp,java set mps+==:;
+
+"plugins
+set surround
+set multiple-cursors
+set easymotion
+set highlightedyank
+
+set showcmd
+nnoremap gd :action GotoImplementation<CR>
+nnoremap gD gd
+set ideajoin
+"nnoremap ; :
+"nnoremap : ;
+set hlsearch
+set incsearch
+set visualbell
+set wrapscan
+set ignorecase
+set smartcase
+
+
+nnoremap <Leader>n :nohlsearch<Enter>
+'nnoremap <Leader>s :w<Enter>
+nnoremap <Leader>s <NOP>
+nnoremap <Leader>q :q<Enter>
+nnoremap <Leader><Tab> <C-w><C-w>
+
