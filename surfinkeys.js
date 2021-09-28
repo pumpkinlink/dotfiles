@@ -10,6 +10,12 @@
 
 // an example to remove mapkey `Ctrl-i`
 // unmap('<Ctrl-i>');
+settings.startToShowEmoji = 3;
+settings.hintAlign = "left";
+settings.stealFocusOnLoad = false;
+settings.enableAutoFocus = false;
+settings.editableBodyCare=false;
+settings.useNeovim = true;
 
 map('<Alt-S>','<Alt-s>');
 
@@ -243,9 +249,9 @@ input {
 .ace_editor,
 .ace_dialog span,
 .ace_dialog input {
-  font-family: var(--font);
+  /*font-family: var(--font); ------cagou no cursor*/
   font-size: var(--font-size);
-  font-weight: var(--font-weight);
+ /*font-weight: var(--font-weight);*/
 }
 `;
 // click `Save` button to make above settings to take effect.
