@@ -1,4 +1,4 @@
-// an example to create a new mapping `ctrl-y`
+g// an example to create a new mapping `ctrl-y`
 // mapkey('<Ctrl-y>', 'Show me the money', function() {
     // Front.showPopup('a well-known phrase uttered by characters in the 1996 film Jerry Maguire (Escape to close).');
 // });
@@ -36,7 +36,7 @@ settings.hintAlign = "left";
 settings.stealFocusOnLoad = false;
 settings.enableAutoFocus = false;
 settings.editableBodyCare=false;
-settings.useNeovim = true;
+//settings.useNeovim = true;
 
 map('<Alt-S>','<Alt-s>');
 
@@ -74,7 +74,10 @@ Visual.style('marks', 'background-color: #A6E22E99;');
 Visual.style('cursor', 'background-color: #F92660;');
 -- DELETE LINE TO ENABLE THEME */
 
-settings.theme = `
+
+asdfasdf = `
+
+//settings.theme = 
 /* Edit these variables for easy theme making */
 :root {
   /* Font */
