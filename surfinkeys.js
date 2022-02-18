@@ -1,4 +1,4 @@
-g// an example to create a new mapping `ctrl-y`
+// an example to create a new mapping `ctrl-y`
 // mapkey('<Ctrl-y>', 'Show me the money', function() {
     // Front.showPopup('a well-known phrase uttered by characters in the 1996 film Jerry Maguire (Escape to close).');
 // });
