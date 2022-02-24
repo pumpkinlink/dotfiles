@@ -1,5 +1,8 @@
 let mapleader=" "
 
+sethandler <C-v> i:ide
+sethandler <C-c> n-v:ide
+
 set clipboard+=unnamedplus
 set scrolloff=5
 set relativenumber
@@ -9,14 +12,26 @@ set matchpairs+=<:>
 :au FileType c,cpp,java set mps+==:;
 
 "plugins
+"set which-key
+"let g:WhichKey_ShowVimActions = "true"
+"set notimeout
+
 set surround
+set argtextobj
+set textobj-indent
 set multiple-cursors
 set easymotion
 set highlightedyank
+set NERDTree
+
 
 set showcmd
-nnoremap gd :action GotoImplementation<CR>
-nnoremap gD gd
+nnoremap gD :action GotoImplementation<CR>
+"nnoremap gD gd
+nnoremap <Leader>t :NERDTree<Enter>
+noremap <Leader>w [w
+noremap <Leader>b [b
+noremap <Leader>e ]w
 set ideajoin
 "nnoremap ; :
 "nnoremap : ;
