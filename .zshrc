@@ -1,18 +1,11 @@
 # If you come from bash you might have to change your $PATH.
 # export PATH=$HOME/bin:/usr/local/bin:$PATH
 
-case $- in
-    *i*)
-        export PATH=$PATH:/snap/bin
-        ;;
-    *) ;;
-esac
-
 # alias tmux='TERM=xterm-88color tmux'
 # alias tmux='export TERM_PROGRAM && tmux'
 
 # TMUX
-if [[ "$TERMINAL_EMULATOR" != "JetBrains-JediTerm" ]] && which tmux >/dev/null 2>&1 ; then
+if [[ "$TERMINAL_EMULATOR" != "JetBrains-JediTerm" ]] && [[ ! -n "`env|grep INSIDE_NAUTILUS_PYTHON`" ]] && which tmux >/dev/null 2>&1 ; then
     #if not inside a tmux session, and if no session is started, start a new session
     # test -z "$TMUX" && (tmux attach || tmux new-session)
     # test -z "$TMUX" && (tmux)
@@ -28,6 +21,8 @@ if [[ "$TERMINAL_EMULATOR" != "JetBrains-JediTerm" ]] && which tmux >/dev/null 2
 		fi
 	fi
 fi
+#npm set prefix ~/.npm;
+path+=$HOME/.npm/bin; path+=./node_modules/.bin
 
 bindkey -v
 # Use vim cli mode
@@ -45,18 +40,21 @@ bindkey '^w' backward-kill-word
 # ctrl-r starts searching history backward
 # bindkey '^r' history-incremental-search-backward
 
+
+
+
 # Path to your oh-my-zsh installation.
-export ZSH="/home/deoliveira/.oh-my-zsh"
+export ZSH="/home/denis/.oh-my-zsh"
 
 # Set name of the theme to load --- if set to "random", it will
 # load a random theme each time oh-my-zsh is loaded, in which case,
 # to know which specific one was loaded, run: echo $RANDOM_THEME
-# See https://github.com/robbyrussell/oh-my-zsh/wiki/Themes
+# See https://github.com/ohmyzsh/ohmyzsh/wiki/Themes
 # ZSH_THEME="robbyrussell"
 
 # Set list of themes to pick from when loading at random
 # Setting this variable when ZSH_THEME=random will cause zsh to load
-# a theme from this variable instead of looking in ~/.oh-my-zsh/themes/
+# a theme from this variable instead of looking in $ZSH/themes/
 # If set to an empty array, this variable will have no effect.
 # ZSH_THEME_RANDOM_CANDIDATES=( "robbyrussell" "agnoster" )
 
@@ -77,7 +75,7 @@ HYPHEN_INSENSITIVE="true"
 # export UPDATE_ZSH_DAYS=13
 
 # Uncomment the following line if pasting URLs and other text is messed up.
-# DISABLE_MAGIC_FUNCTIONS=true
+# DISABLE_MAGIC_FUNCTIONS="true"
 
 # Uncomment the following line to disable colors in ls.
 # DISABLE_LS_COLORS="true"
@@ -89,6 +87,8 @@ HYPHEN_INSENSITIVE="true"
 # ENABLE_CORRECTION="true"
 
 # Uncomment the following line to display red dots whilst waiting for completion.
+# Caution: this setting can cause issues with multiline prompts (zsh 5.7.1 and newer seem to work)
+# See https://github.com/ohmyzsh/ohmyzsh/issues/5765
 COMPLETION_WAITING_DOTS="true"
 
 # Uncomment the following line if you want to disable marking untracked files
@@ -108,8 +108,8 @@ HIST_STAMPS="yyyy-mm-dd"
 # ZSH_CUSTOM=/path/to/new-custom-folder
 
 # Which plugins would you like to load?
-# Standard plugins can be found in ~/.oh-my-zsh/plugins/*
-# Custom plugins may be added to ~/.oh-my-zsh/custom/plugins/
+# Standard plugins can be found in $ZSH/plugins/
+# Custom plugins may be added to $ZSH_CUSTOM/plugins/
 # Example format: plugins=(rails git textmate ruby lighthouse)
 # Add wisely, as too many plugins slow down shell startup.
 plugins=(
@@ -117,12 +117,18 @@ plugins=(
     command-not-found
     docker
     docker-compose
+    gcloud
+    gh
     git
     git-extras
+    #github
+    gradle
     jira
     mvn
+    nvm
     ubuntu
     yarn
+    fast-syntax-highlighting
     zsh-vim-mode
     fzf # (needs to be after vim-mode)
 )
@@ -142,6 +148,7 @@ _fzf_compgen_dir() {
 
 zstyle ':completion:*:*:docker:*' option-stacking yes
 zstyle ':completion:*:*:docker-*:*' option-stacking yes
+
 
 source $ZSH/oh-my-zsh.sh
 
@@ -170,19 +177,20 @@ source $ZSH/oh-my-zsh.sh
 # Example aliases
 # alias zshconfig="mate ~/.zshrc"
 # alias ohmyzsh="mate ~/.oh-my-zsh"
-
 #setopt menucomplete
+
+alias info='info --vi-keys'
 
 HISTFILE=~/.zsh_history
 HISTSIZE=1000000
 SAVEHIST=1000000
 setopt appendhistory
 
-source ~/.bash_aliases
+# source ~/.bash_aliases
 
 
 ZSH_HIGHLIGHT_HIGHLIGHTERS=(main brackets)
-export ZSH_HIGHLIGHT_MAXLENGTH=256
+export ZSH_HIGHLIGHT_MAXLENGTH=512
 typeset -A ZSH_HIGHLIGHT_STYLES
 
 # Override default styles to bright variation.
@@ -204,6 +212,7 @@ typeset -A ZSH_HIGHLIGHT_STYLES
 : ${ZSH_HIGHLIGHT_STYLES[arg0]:=fg=10}
 
 ZSH_HIGHLIGHT_STYLES[alias]='fg=14'
+ZSH_HIGHLIGHT_STYLES[unknown-token]='fg=9,bold'
 ZSH_HIGHLIGHT_STYLES[path]='underline,fg=14'
 
 hless () { highlight --out-format=ansi -s leo $@ | less -RN; }
@@ -211,6 +220,7 @@ hless () { highlight --out-format=ansi -s leo $@ | less -RN; }
 setopt prompt_subst
 PS1_L1="%F{10}%n@%M%f:%F{14}%~%f"
 PS1_L2='${MODE_INDICATOR_PROMPT} %# '
+
 if [[ -e /usr/lib/git-core/git-sh-prompt ]]; then
 	source /usr/lib/git-core/git-sh-prompt
 fi
@@ -219,8 +229,14 @@ GIT_PS1_SHOWDIRTYSTATE=1
 #GIT_PS1_SHOWUNTRACKEDFILES=1 # <- lento
 GIT_PS1_SHOWUPSTREAM="verbose"
 precmd () {
-    DATEPROMPT=`date --rfc-3339=seconds`
-    __git_ps1 "" " $DATEPROMPT" && RPROMPT="$PS1"
+    if [[ ! -n "`env|grep INSIDE_NAUTILUS_PYTHON`" ]]; then
+        #DATEPROMPT=`date --rfc-3339=seconds`
+        DATEPROMPT=`date`
+        __git_ps1 "" " $DATEPROMPT"
+    else
+        __git_ps1 "" ""
+    fi
+    RPROMPT="$PS1"
     PS1="$PS1_L1 
 ${PS1_L2}"
 }
@@ -233,12 +249,19 @@ MODE_INDICATOR_VISUAL='%B%F{14}(VIS)%b%f'
 MODE_INDICATOR_VLINE='%B%F{14}(VLI)%b%f'
 
 MODE_CURSOR_VICMD="blinking block"
+MODE_CURSOR_VISUAL="$MODE_CURSOR_VICMD"
+MODE_CURSOR_VLINE="$MODE_CURSOR_VISUAL"
+
 if [ "$TERM_PROGRAM" != 'vscode' ]; then
     MODE_CURSOR_VIINS="blinking bar"
 else
     MODE_CURSOR_VIINS="blinking block"
 fi
-MODE_CURSOR_SEARCH="blinking underline"
+
+MODE_CURSOR_REPLACE="blinking underline"
+MODE_CURSOR_SEARCH="$MODE_CURSOR_REPLACE"
+
+
 export KEYTIMEOUT=20
 bindkey -ra s
 
@@ -277,6 +300,10 @@ alias -g L="| less"
 #   sleep 10; alert
 alias alert='notify-send --urgency=low -i "$([ $? = 0 ] && echo terminal || echo error)" "$(history|tail -n1|sed -e '\''s/^\s*[0-9]\+\s*//;s/[;&|]\s*alert$//'\'')"'
 
+
+
+alias bat=batcat
+
 #THIS MUST BE AT THE END OF THE FILE FOR SDKMAN TO WORK!!!
 export SDKMAN_DIR="/home/deoliveira/.sdkman"
 [[ -s "/home/deoliveira/.sdkman/bin/sdkman-init.sh" ]] && source "/home/deoliveira/.sdkman/bin/sdkman-init.sh"
@@ -284,5 +311,7 @@ export SDKMAN_DIR="/home/deoliveira/.sdkman"
 
 export LD_PRELOAD=/usr/lib/x86_64-linux-gnu/libgtk3-nocsd.so.0
 
-source /usr/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+#source /usr/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+eval "$(/home/denis/Downloads/.miniconda/bin/conda shell.zsh hook)"
+
 
