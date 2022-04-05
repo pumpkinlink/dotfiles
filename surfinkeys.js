@@ -2,7 +2,7 @@
 // mapkey('<Ctrl-y>', 'Show me the money', function() {
     // Front.showPopup('a well-known phrase uttered by characters in the 1996 film Jerry Maguire (Escape to close).');
 // });
-
+chrome.storage.local.set({"noPdfViewer": 1})
 // an example to replace `T` with `gt`, click `Default mappings` to see how `T` works.
 // map('gt', 'T');
 const {
