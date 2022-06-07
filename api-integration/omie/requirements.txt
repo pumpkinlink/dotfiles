@@ -3,3 +3,6 @@ datetime
 google-cloud-logging
 google-cloud-bigquery
 facebook_business
+dataclass-wizard
+pandas==1.4.*
+
