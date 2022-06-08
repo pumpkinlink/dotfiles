@@ -1,5 +1,5 @@
 from dataclasses import dataclass, asdict, field
-from decimal import Decimal
+from decimal import str
 from typing import Literal, TypedDict
 
 import requests
@@ -34,18 +34,18 @@ class Detalhes(TypedDict, total=False):
     cNumDocFiscal: str  # Número do documento fiscal (NF-e, NFC-e, NFS-e, etc)+
     cCodCateg: str  # Código da Categoria.
     cNumParcela: str  # Número da parcela "Formatada" como 999/999
-    nValorTitulo: Decimal  # Valor do título.
-    nValorPIS: Decimal  # Valor do PIS.
+    nValorTitulo: str  # Valor do título.
+    nValorPIS: str  # Valor do PIS.
     cRetPIS: str  # Indica que o Valor do PIS informado deve ser retido.
-    nValorCOFINS: Decimal  # Valor do COFINS.
+    nValorCOFINS: str  # Valor do COFINS.
     cRetCOFINS: str  # Indica que o Valor do COFINS informado deve ser retido.
-    nValorCSLL: Decimal  # Valor do CSLL.
+    nValorCSLL: str  # Valor do CSLL.
     cRetCSLL: str  # Indica que o Valor do CSLL informado deve ser retido.
-    nValorIR: Decimal  # Valor do Imposto de Renda.
+    nValorIR: str  # Valor do Imposto de Renda.
     cRetIR: str  # Indica que o Valor do Imposto de Renda informado deve ser retido.
-    nValorISS: Decimal  # Valor do ISS.
+    nValorISS: str  # Valor do ISS.
     cRetISS: str  # Indica que o Valor do ISS informado deve ser retido.
-    nValorINSS: Decimal  # Valor do INSS.
+    nValorINSS: str  # Valor do INSS.
     cRetINSS: str  # Indica que o Valor do INSS informado deve ser retido.
     cCodProjeto: int  # Código do projeto.+
     observacao: str  # Observações do título.
@@ -61,11 +61,11 @@ class Detalhes(TypedDict, total=False):
     nCodTitRepet: int  # Código do título original que gerou a repetição dos lançamentos.
     cGrupo: str  # Grupo do lançamento.
     nCodMovCC: int  # Código do movimento de Conta Corrente.
-    nValorMovCC: Decimal  # Valor do movimento de Conta Corrente.
+    nValorMovCC: str  # Valor do movimento de Conta Corrente.
     nCodMovCCRepet: int  # Código do movimento de repetição,
-    nDesconto: Decimal  # Valor do Desconto.
-    nJuros: Decimal  # Valor do Juros.
-    nMulta: Decimal  # Valor da Multa.
+    nDesconto: str  # Valor do Desconto.
+    nJuros: str  # Valor do Juros.
+    nMulta: str  # Valor da Multa.
     nCodBaixa: int  # Código da baixa.
     dDtCredito: str  # Data de credito.
     dDtConcilia: str  # Data da conciliação.
@@ -81,26 +81,26 @@ class Detalhes(TypedDict, total=False):
 
 class Resumo(TypedDict, total=False):
     cLiquidado: str  # Indica se o título está liquidado.+
-    nValPago: Decimal  # Valor total pago para o título.
-    nValAberto: Decimal  # Valor total em aberto para o título.
-    nDesconto: Decimal  # Valor do Desconto.
-    nJuros: Decimal  # Valor do Juros.
-    nMulta: Decimal  # Valor da Multa.
-    nValLiquido: Decimal  # Valor líquido+
+    nValPago: str  # Valor total pago para o título.
+    nValAberto: str  # Valor total em aberto para o título.
+    nDesconto: str  # Valor do Desconto.
+    nJuros: str  # Valor do Juros.
+    nMulta: str  # Valor da Multa.
+    nValLiquido: str  # Valor líquido+
 
 
 class Departamento(TypedDict, total=False):
     cCodDepartamento: str  # Código do Departamento.
-    nDistrPercentual: Decimal  # Percentual da distribuição.
-    nDistrValor: Decimal  # Valor da distribuição.
-    nValorFixo: bool  # Indica que o valor foi fixado na distribuição (S/N).
+    nDistrPercentual: str  # Percentual da distribuição.
+    nDistrValor: str  # Valor da distribuição.
+    nValorFixo: str  # Indica que o valor foi fixado na distribuição (S/N).
 
 
 class Categoria(TypedDict, total=False):
     cCodCateg: str  # Código da Categoria.
-    nDistrPercentual: Decimal  # Percentual da distribuição.
-    nDistrValor: Decimal  # Valor da distribuição.
-    nValorFixo: bool  # Indica que o valor foi fixado na distribuição (S/N).
+    nDistrPercentual: str  # Percentual da distribuição.
+    nDistrValor: str  # Valor da distribuição.
+    nValorFixo: str  # Indica que o valor foi fixado na distribuição (S/N).
 
 
 class Movimento(TypedDict, total=False):
@@ -148,6 +148,16 @@ class MfListarRequest:
     dDtAltAte: str = None  # (string[10]):	Data de alteração
     cExibirDepartamentos: Literal[
         'S', 'N'] = 'S'  # Exibir distribuição por departamentos.
+    cStatus: Literal[
+        'CANCELADO',
+        'RECEBIDO',
+        'LIQUIDADO',
+        'EMABERTO',
+        'PAGTO_PARCIAL',
+        'VENCEHOJE',
+        'AVENCER',
+        'ATRASADO'] = None #	string100	Status do título.+Pode ser:
+
 
 
 @dataclass

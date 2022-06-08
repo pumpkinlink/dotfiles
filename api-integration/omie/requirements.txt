@@ -5,4 +5,5 @@ google-cloud-bigquery
 facebook_business
 dataclass-wizard
 pandas==1.4.*
+Flask==1.1.2
 
