@@ -1,5 +1,4 @@
 from dataclasses import dataclass, asdict, field
-from decimal import str
 from typing import Literal, TypedDict
 
 import requests
@@ -63,9 +62,6 @@ class Detalhes(TypedDict, total=False):
     nCodMovCC: int  # Código do movimento de Conta Corrente.
     nValorMovCC: str  # Valor do movimento de Conta Corrente.
     nCodMovCCRepet: int  # Código do movimento de repetição,
-    nDesconto: str  # Valor do Desconto.
-    nJuros: str  # Valor do Juros.
-    nMulta: str  # Valor da Multa.
     nCodBaixa: int  # Código da baixa.
     dDtCredito: str  # Data de credito.
     dDtConcilia: str  # Data da conciliação.

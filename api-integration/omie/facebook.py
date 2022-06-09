@@ -1,15 +1,13 @@
 from google.cloud import bigquery
-from google.cloud.exceptions import NotFound
-from datetime import datetime, date, timedelta
+from datetime import date, timedelta
 import requests
 import logging
-import json
 import base64
 from facebook_business.api import FacebookAdsApi
 from facebook_business.adobjects.adaccount import AdAccount
-from facebook_business.adobjects.adaccountuser import AdAccountUser
 from facebook_business.adobjects.adsinsights import AdsInsights
-from facebook_business.adobjects.campaign import Campaign
+
+from bigqueryutil import create_table_if_not_exists, insert_rows_bq
 
 logger = logging.getLogger()
 
@@ -40,57 +38,6 @@ schema_facebook_stat = [
 ]
 
 clustering_fields_facebook = ['campaign_id', 'campaign_name']
-
-
-def exist_dataset_table(client, table_id, dataset_id, project_id, schema,
-    clustering_fields=None):
-  try:
-    dataset_ref = "{}.{}".format(project_id, dataset_id)
-    client.get_dataset(dataset_ref)  # Make an API request.
-
-  except NotFound:
-    dataset_ref = "{}.{}".format(project_id, dataset_id)
-    dataset = bigquery.Dataset(dataset_ref)
-    dataset.location = "US"
-    dataset = client.create_dataset(dataset)  # Make an API request.
-    logger.info(
-      "Created dataset {}.{}".format(client.project, dataset.dataset_id))
-
-  try:
-    table_ref = "{}.{}.{}".format(project_id, dataset_id, table_id)
-    client.get_table(table_ref)  # Make an API request.
-
-  except NotFound:
-
-    table_ref = "{}.{}.{}".format(project_id, dataset_id, table_id)
-
-    table = bigquery.Table(table_ref, schema=schema)
-
-    table.time_partitioning = bigquery.TimePartitioning(
-      type_=bigquery.TimePartitioningType.DAY,
-      field="date"
-    )
-
-    if clustering_fields is not None:
-      table.clustering_fields = clustering_fields
-
-    table = client.create_table(table)  # Make an API request.
-    logger.info("Created table {}.{}.{}".format(table.project, table.dataset_id,
-                                                table.table_id))
-
-  return 'ok'
-
-
-def insert_rows_bq(client, table_id, dataset_id, project_id, data):
-  table_ref = "{}.{}.{}".format(project_id, dataset_id, table_id)
-  table = client.get_table(table_ref)
-
-  resp = client.insert_rows_json(
-    json_rows=data,
-    table=table_ref,
-  )
-
-  logger.info("Success uploaded to table {}".format(table.table_id))
 
 
 def get_facebook_data(event, context):
@@ -131,8 +78,8 @@ def get_facebook_data(event, context):
 
     if r.json()["success"] is True:
 
-      exist_dataset_table(bigquery_client, table_id, dataset_id, project_id,
-                          schema_exchange_rate)
+      create_table_if_not_exists(bigquery_client, table_id, dataset_id, project_id,
+                                 schema_exchange_rate)
 
       cur_source.append({'date': yesterday.strftime("%Y-%m-%d"),
                          'currencies': source,
@@ -219,9 +166,9 @@ def get_facebook_data(event, context):
                         'actions': actions
                         })
 
-    if exist_dataset_table(bigquery_client, table_id, dataset_id, project_id,
-                           schema_facebook_stat,
-                           clustering_fields_facebook) == 'ok':
+    if create_table_if_not_exists(bigquery_client, table_id, dataset_id, project_id,
+                                  schema_facebook_stat,
+                                  clustering_fields_facebook) == 'ok':
       insert_rows_bq(bigquery_client, table_id, dataset_id, project_id,
                      fb_source)
 
