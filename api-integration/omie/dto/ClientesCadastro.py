@@ -3,7 +3,7 @@ from typing import TypedDict
 
 import requests
 
-from dto.OmieEndpoint import OmieRequestBody
+from dto.OmieEndpoint import OmieRequestBody, OmiePageRequestSlugCase
 
 URL = 'https://app.omie.com.br/api/v1/geral/clientes/'
 
@@ -23,7 +23,7 @@ class ClientesListResponse(TypedDict, total=False):
     total_de_registros: int  # total de registros encontrados
     clientes_cadastro_resumido: list[
         ClientesCadastroResumido]  # Cadastro reduzido de produtos
-
+page_body_key: "clientes_cadastro_resumido"
 
 @dataclass
 class ClientesPorCodigo:
@@ -32,7 +32,7 @@ class ClientesPorCodigo:
 
 
 @dataclass
-class ClientesListRequest:
+class ClientesListRequest(OmiePageRequestSlugCase):
     apenas_importado_api: str | None = None  # string1	Exibir apenas os registros gerados pela API
     ordenar_por: str | None = None  # string100	Ordem de exibição dos dados. Padrão: Código.
     ordem_decrescente: str | None = None  # string1	Se a lista será apresentada em ordem decrescente.
@@ -47,16 +47,16 @@ class ClientesListRequest:
         default_factory=list)  # Lista de Códigos para filtro de clientes
     exibir_caracteristicas: str | None = None  # string1	Exibe as caracteristicas do cliente.
 
-    pagina: int = 1  # Número da página retornada
-    registros_por_pagina: int = 500  # Número de registros retornados na página.
 
 
 @dataclass
-class ListarCategoriasRequestBody(OmieRequestBody):
+class ListarClientesRequestBody(OmieRequestBody):
     param: list[ClientesListRequest] = field(default_factory=list)
     call: str = "ListarClientesResumido"
 
 
-def listar_categorias(params: ClientesListRequest):
+def listar_clientes(params: ClientesListRequest):
     return requests.post(URL, json=asdict(
-        ListarCategoriasRequestBody(param=[params])))
+        ListarClientesRequestBody(param=[params])))
+
+poster=listar_clientes

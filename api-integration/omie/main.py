@@ -9,10 +9,11 @@ from google.cloud import bigquery
 
 import schema
 from dto.CategoriasCadastro import CategoriaCadastro, CategoriaListRequest
+from dto.ClientesCadastro import ClientesListRequest, ClientesPorCodigo
 from schema import partition_field
 from utils.OmiePaginator import PaginatorCamelCase, PaginatorSlugCase
 from utils.bigqueryutil import create_table_if_not_exists, insert_rows_bq
-from dto import MovimentosFinanceiros, CategoriasCadastro
+from dto import MovimentosFinanceiros, CategoriasCadastro, ClientesCadastro
 from dto.MovimentosFinanceiros import MfListarRequest, MfListarResponse, \
     Movimento
 
@@ -77,6 +78,18 @@ def compare_category(
     return cc['codigo'] == code
 
 
+def set_client(movement,
+    clients: list[ClientesCadastro.ClientesCadastroResumido]):
+    code = movement["nCodCliente"]
+
+    def predicate(client: ClientesCadastro.ClientesCadastroResumido):
+        return client['codigo_cliente'] == code
+
+    result = next(filter(predicate, clients))
+    movement[schema.razao_social_cliente] = result
+    return movement
+
+
 def set_categories(movement, categories: list):
     if movement["cCodCateg"] is not None:
         result: list[CategoriasCadastro.CategoriaCadastro] = list(
@@ -126,8 +139,17 @@ def hello(event, context):
             CategoriasCadastro.page_body_key).concat_all_pages()
 
         spread = list(map(spread_to_schema, resp))
+        client_id_array = list(
+            map(lambda c: ClientesPorCodigo(codigo_cliente_omie=c),
+                map(lambda m: m["detalhes"]["nCodCliente"], resp)))
+        clients = PaginatorSlugCase(
+            ClientesListRequest(clientesPorCodigo=client_id_array),
+            ClientesCadastro.poster,
+            ClientesCadastro.page_body_key).concat_all_pages()
         bigquery_rows = list(
-            map(lambda r: set_categories(r, categories), spread))
+            map(lambda m: set_client(m, clients),
+                map(lambda m: set_categories(m, categories),
+                    spread)))
         pprint(bigquery_rows[0])
 
         create_table_if_not_exists(client, table_id, dataset_id, project_id,

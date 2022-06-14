@@ -17,6 +17,7 @@ resumo = [
     field('nMulta', NUMERIC),
     field('nValLiquido', NUMERIC)
 ]
+razao_social_cliente = 'razao_social_cliente'
 detalhes = [
     field('nCodTitulo', INTEGER),
     field('cCodIntTitulo', STRING),
@@ -29,7 +30,7 @@ detalhes = [
 
     field('nCodCliente', INTEGER),
     field('cCPFCNPJCliente', STRING),
-    field('razao_social_cliente', STRING),  # TODO
+    field(razao_social_cliente, STRING),  # TODO
     # cliente
 
     field('nCodCtr', INTEGER),
