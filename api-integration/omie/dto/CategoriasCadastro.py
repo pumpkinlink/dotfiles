@@ -2,8 +2,10 @@ from dataclasses import dataclass, field, asdict
 from typing import TypedDict, Literal
 
 import requests
+from requests import Response
 
-from dto.OmieRequestBody import OmieRequestBody
+from dto.OmieEndpoint import OmieRequestBody, OmiePageRequestSlugCase, \
+    OmieResponseBodySlugCase
 
 URL = 'https://app.omie.com.br/api/v1/geral/categorias/'
 
@@ -36,11 +38,17 @@ class CategoriaCadastro(TypedDict, total=False):
     dadosDRE: DadosDre  # Detalhes da conta do DRE.
 
 
+class categoria_listfull_response(OmieResponseBodySlugCase, total=False):
+    categoria_cadastro: list[CategoriaCadastro]
+
+
+page_body_key = 'categoria_cadastro'
+
+
 @dataclass
-class CategoriaListRequest:
-    pagina: int = 1  # Número da página retornada
-    registros_por_pagina: int = 500  # Número de registros retornados na página.
-    filtrar_apenas_ativo: Literal['S', 'N'] = "N"  # Fitrar apenas categorias ativas
+class CategoriaListRequest(OmiePageRequestSlugCase):
+    filtrar_apenas_ativo: Literal[
+        'S', 'N'] = "N"  # Fitrar apenas categorias ativas
 
 
 @dataclass
@@ -49,6 +57,9 @@ class ListarCategoriasRequestBody(OmieRequestBody):
     call: str = "ListarCategorias"
 
 
-def listar_categorias(params: CategoriaListRequest):
+def listar_categorias(params: CategoriaListRequest) -> Response:
     return requests.post(URL, json=asdict(
         ListarCategoriasRequestBody(param=[params])))
+
+
+poster = listar_categorias

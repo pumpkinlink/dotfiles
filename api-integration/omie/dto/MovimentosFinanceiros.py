@@ -2,8 +2,10 @@ from dataclasses import dataclass, asdict, field
 from typing import Literal, TypedDict
 
 import requests
+from requests import Response
 
-from dto.OmieRequestBody import OmieRequestBody
+from dto.OmieEndpoint import OmieRequestBody, OmieResponseBodyCamelCase, \
+    OmiePageRequestCamelCase
 
 URL = 'https://app.omie.com.br/api/v1/financas/mf/'
 
@@ -106,22 +108,19 @@ class Movimento(TypedDict, total=False):
     categorias: list[Categoria]  # Distribuição por Categorias.
 
 
-class MfListarResponse(TypedDict, total=False):
-    nPagina: int  # Número da página que será listada.
-    nTotPaginas: int  # Total de páginas encontradas.
-    nRegistros: int  # Número de registros retornados
-    nTotRegistros: int  # Total de registros encontrados.
+class MfListarResponse(OmieResponseBodyCamelCase, total=False):
     movimentos: list[
         Movimento]  # Listagem da movimentação financeira (Contas a Pagar, Contas a Receber e Lançamentos do Conta Corrente).
 
 
+page_body_key = "movimentos"
+
+
 @dataclass
-class MfListarRequest:
+class MfListarRequest(OmiePageRequestCamelCase):
     """
     Solicitação de Listagem da movimentação financeira (Contas a Pagar, Contas a Receber e Lançamentos do Conta Corrente).
     """
-    nPagina: int = None  # Número da página que será listada.
-    nRegPorPagina: int = 500  # Número de registros retornados (max 500)
 
     cOrdenarPor: Literal[
         'CODIGO', 'CODIGO_INTEGRACAO'] = None  # (string[100]):	Ordem de exibição dos dados.
@@ -130,7 +129,7 @@ class MfListarRequest:
     dDtEmisAte: str = None  # (string[10]):	Data de emissão
     dDtVencDe: str = None  # (string[10]):	Data de vencimento.
     dDtVencAte: str = None  # (string[10]):	Data de vencimento.
-    dDtPagtoDe: str = None  # (string[10]):	Data de pagamento
+    dDtPagtoDe: str = '01/01/1901'  # (string[10]):	Data de pagamento
     dDtPagtoAte: str = None  # (string[10]):	Data de pagamento
     dDtPrevDe: str = None  # (string[10]):	Data de previsão de Pagamento/Recebimento.
     dDtPrevAte: str = None  # (string[10]):	Data de previsão de Pagamento/Recebimento.
@@ -152,8 +151,7 @@ class MfListarRequest:
         'PAGTO_PARCIAL',
         'VENCEHOJE',
         'AVENCER',
-        'ATRASADO'] = None #	string100	Status do título.+Pode ser:
-
+        'ATRASADO'] = None  # string100	Status do título.+Pode ser:
 
 
 @dataclass
@@ -162,10 +160,12 @@ class ListarMovimentosRequestBody(OmieRequestBody):
     call: str = "ListarMovimentos"
 
 
-def listar_movimentos(params: MfListarRequest):
+def listar_movimentos(params: MfListarRequest) -> Response:
     return requests.post(URL, json=asdict(
         ListarMovimentosRequestBody(param=[params])))
 
+
+poster = listar_movimentos
 
 var1: ListarMovimentosRequestBody = ListarMovimentosRequestBody(
     param=[MfListarRequest(nPagina=1, dDtRegDe='01/01/2022')]

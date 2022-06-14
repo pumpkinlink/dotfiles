@@ -47,6 +47,7 @@ detalhes = [
     field('cOperacao', STRING),
     field('cNumDocFiscal', STRING),
     field('cCodCateg', STRING),
+    field('descricao_categoria', STRING),
     field('cNumParcela', STRING),
 
     field('nValorTitulo', NUMERIC),
@@ -104,7 +105,7 @@ departamentos = field(name="departamentos",
                       mode=REPEATED,
                       fields=(
                           field('cCodDepartamento', STRING),
-                          field('descricao_departamento', STRING), #TODO
+                          field('descricao_departamento', STRING),  # TODO
                           field('nDistrPercentual', NUMERIC),
                           field('nDistrValor', NUMERIC),
                           field('nValorFixo', STRING)
@@ -114,7 +115,7 @@ categorias = field(name="categorias",
                    mode=REPEATED,
                    fields=(
                        field('cCodCateg', STRING),
-                       field('descricao_categoria', STRING), #TODO
+                       field('descricao_categoria', STRING),  # TODO
                        field('nDistrPercentual', NUMERIC),
                        field('nDistrValor', NUMERIC),
                        field('nValorFixo', STRING)

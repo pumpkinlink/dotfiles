@@ -3,7 +3,7 @@ from typing import TypedDict
 
 import requests
 
-from dto.OmieRequestBody import OmieRequestBody
+from dto.OmieEndpoint import OmieRequestBody
 
 URL = 'https://app.omie.com.br/api/v1/geral/clientes/'
 

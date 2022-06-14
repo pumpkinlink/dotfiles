@@ -1,3 +1,4 @@
+from pprint import pprint
 from time import sleep
 from typing import Sequence, Mapping
 
@@ -65,4 +66,6 @@ def insert_rows_bq(client: Client, table_id, dataset_id, project_id, data):
     if len(resp) == 0:
         print("Success uploaded to table {}".format(table.table_id))
     else:
-        print(resp)
+        print(len(resp))
+        print(resp[0])
+        pprint(data[0])
