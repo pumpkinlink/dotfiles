@@ -1,11 +1,12 @@
 from dataclasses import dataclass, asdict, field
-from typing import Literal, TypedDict
+from typing import Literal, TypedDict, Callable, Any
 
 import requests
 from requests import Response
 
 from dto.OmieEndpoint import OmieRequestBody, OmieResponseBodyCamelCase, \
     OmiePageRequestCamelCase
+from utils.OmiePaginator import PaginatorCamelCase
 
 URL = 'https://app.omie.com.br/api/v1/financas/mf/'
 
@@ -113,9 +114,6 @@ class MfListarResponse(OmieResponseBodyCamelCase, total=False):
         Movimento]  # Listagem da movimentação financeira (Contas a Pagar, Contas a Receber e Lançamentos do Conta Corrente).
 
 
-page_body_key = "movimentos"
-
-
 @dataclass
 class MfListarRequest(OmiePageRequestCamelCase):
     """
@@ -165,10 +163,20 @@ def listar_movimentos(params: MfListarRequest) -> Response:
         ListarMovimentosRequestBody(param=[params])))
 
 
-poster = listar_movimentos
-
 var1: ListarMovimentosRequestBody = ListarMovimentosRequestBody(
     param=[MfListarRequest(nPagina=1, dDtRegDe='01/01/2022')]
 )
+
+
+def get(request: MfListarRequest,
+    object_hook: Callable[[dict], Any | None],
+) -> list[Movimento]:
+    movimento_paginator = PaginatorCamelCase(
+        request,
+        poster=listar_movimentos,
+        object_hook=object_hook,
+        page_body_key="movimentos"
+    )
+    return movimento_paginator.concat_all_pages()
 
 # var2 : MfListarResponse = MfListarResponse(movimentos=[])

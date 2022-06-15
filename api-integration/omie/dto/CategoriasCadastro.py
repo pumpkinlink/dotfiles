@@ -6,6 +6,7 @@ from requests import Response
 
 from dto.OmieEndpoint import OmieRequestBody, OmiePageRequestSlugCase, \
     OmieResponseBodySlugCase
+from utils.OmiePaginator import PaginatorSlugCase
 
 URL = 'https://app.omie.com.br/api/v1/geral/categorias/'
 
@@ -42,9 +43,6 @@ class categoria_listfull_response(OmieResponseBodySlugCase, total=False):
     categoria_cadastro: list[CategoriaCadastro]
 
 
-page_body_key = 'categoria_cadastro'
-
-
 @dataclass
 class CategoriaListRequest(OmiePageRequestSlugCase):
     filtrar_apenas_ativo: Literal[
@@ -62,4 +60,9 @@ def listar_categorias(params: CategoriaListRequest) -> Response:
         ListarCategoriasRequestBody(param=[params])))
 
 
-poster = listar_categorias
+def get() -> list[CategoriaCadastro]:
+    return PaginatorSlugCase(
+        CategoriaListRequest(),
+        poster = listar_categorias,
+        page_body_key = 'categoria_cadastro'
+    ).concat_all_pages()

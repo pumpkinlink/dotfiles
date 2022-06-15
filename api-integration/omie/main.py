@@ -1,110 +1,21 @@
 import base64
-import datetime
 import json
-import re
 from pprint import pprint
 
 import requests
 from google.cloud import bigquery
 
 import schema
-from dto.CategoriasCadastro import CategoriaCadastro, CategoriaListRequest
-from dto.ClientesCadastro import ClientesListRequest, ClientesPorCodigo
-from schema import partition_field
-from utils.OmiePaginator import PaginatorCamelCase, PaginatorSlugCase
-from utils.bigqueryutil import create_table_if_not_exists, insert_rows_bq
 from dto import MovimentosFinanceiros, CategoriasCadastro, ClientesCadastro
-from dto.MovimentosFinanceiros import MfListarRequest, MfListarResponse, \
-    Movimento
+from dto.ClientesCadastro import ClientesListRequest, ClientesPorCodigo
+from dto.MovimentosFinanceiros import MfListarRequest
+from schema import partition_field, bigquery_formatter
+from utils.bigqueryutil import create_table_if_not_exists, insert_rows_bq
 
 SOURCE_DATE_FORMAT = '%d/%m/%Y'
 BIGQUERY_DATE_FORMAT = '%Y-%m-%d'
 
-
-def bigquery_formatter(dct):
-    for k, v in dct.items():
-        if isinstance(v, str) and re.search("^dDt", k):
-            dct[k] = datetime.datetime.strptime(v,
-                                                SOURCE_DATE_FORMAT).date().strftime(
-                BIGQUERY_DATE_FORMAT)
-        elif isinstance(v, float) and k in [
-            'nValorTitulo',
-            'nValorPIS',
-            'nValorCOFINS',
-            'nValorCSLL',
-            'nValorIR',
-            'nValorISS',
-            'nValorINSS',
-            'nValorMovCC',
-
-            'nValPago',
-            'nValAberto',
-            'nDesconto',
-            'nJuros',
-            'nMulta',
-            'nValLiquido',
-
-            'nDistrPercentual',
-            'nDistrValor'
-        ]:
-            dct[k] = str(v)
-    return dct
-
-
-def spread_to_schema(m: Movimento):
-    row = {
-        **m['detalhes'],
-        **m['resumo'],
-        "departamentos": m["departamentos"] if 'departamentos' in m else [],
-        "categorias": m["categorias"] if 'categorias' in m else []
-    }
-    return row
-
-
 client = bigquery.Client()
-
-
-def compare_array_category(
-    cc: CategoriasCadastro.CategoriaCadastro,
-    mc: MovimentosFinanceiros.Categoria
-):
-    return cc['codigo'] == mc['cCodCateg']
-
-
-def compare_category(
-    cc: CategoriasCadastro.CategoriaCadastro,
-    code: str
-):
-    return cc['codigo'] == code
-
-
-def set_client(movement,
-    clients: list[ClientesCadastro.ClientesCadastroResumido]):
-    code = movement["nCodCliente"]
-
-    def predicate(client: ClientesCadastro.ClientesCadastroResumido):
-        return client['codigo_cliente'] == code
-
-    result = next(filter(predicate, clients))
-    movement[schema.razao_social_cliente] = result
-    return movement
-
-
-def set_categories(movement, categories: list):
-    if movement["cCodCateg"] is not None:
-        result: list[CategoriasCadastro.CategoriaCadastro] = list(
-            filter(
-                lambda cc: compare_category(cc=cc, code=movement["cCodCateg"]),
-                categories))
-        movement['descricao_categoria'] = result[0]['descricao'] if len(
-            result) > 0 else None
-
-    for mc in movement["categorias"]:
-        result: list[CategoriasCadastro.CategoriaCadastro] = list(
-            filter(lambda cc: compare_array_category(cc=cc, mc=mc), categories))
-        mc['descricao_categoria'] = result[0]['descricao'] if len(
-            result) > 0 else None
-    return movement
 
 
 #
@@ -124,32 +35,25 @@ def hello(event, context):
         request_body = MfListarRequest(dDtPagtoDe='01/06/2022',
                                        nRegPorPagina=100,
                                        cStatus='LIQUIDADO')
-        movimento_paginator = PaginatorCamelCase(
-            request_body,
-            MovimentosFinanceiros.poster,
-            bigquery_formatter, MovimentosFinanceiros.page_body_key)
-        resp: list[Movimento] = movimento_paginator.concat_all_pages()
+        resp = MovimentosFinanceiros.get(request_body, bigquery_formatter)
 
         table_id = parameters["tableId"]
         dataset_id = parameters['datasetId']
         project_id = parameters['projectId']
 
-        categories: list[CategoriaCadastro] = PaginatorSlugCase(
-            CategoriaListRequest(), CategoriasCadastro.poster,
-            CategoriasCadastro.page_body_key).concat_all_pages()
+        categories: CategoriasCadastro.get()
 
-        spread = list(map(spread_to_schema, resp))
         client_id_array = list(
             map(lambda c: ClientesPorCodigo(codigo_cliente_omie=c),
                 map(lambda m: m["detalhes"]["nCodCliente"], resp)))
-        clients = PaginatorSlugCase(
-            ClientesListRequest(clientesPorCodigo=client_id_array),
-            ClientesCadastro.poster,
-            ClientesCadastro.page_body_key).concat_all_pages()
-        bigquery_rows = list(
-            map(lambda m: set_client(m, clients),
-                map(lambda m: set_categories(m, categories),
-                    spread)))
+        clients = ClientesCadastro.get(
+            ClientesListRequest(
+                clientesPorCodigo=client_id_array))
+
+        def bq_builder(m: MovimentosFinanceiros.Movimento):
+            schema.builder(m, clients, categories)
+
+        bigquery_rows = list(map(bq_builder, resp))
         pprint(bigquery_rows[0])
 
         create_table_if_not_exists(client, table_id, dataset_id, project_id,

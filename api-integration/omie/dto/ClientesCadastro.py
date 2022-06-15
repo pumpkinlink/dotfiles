@@ -4,6 +4,7 @@ from typing import TypedDict
 import requests
 
 from dto.OmieEndpoint import OmieRequestBody, OmiePageRequestSlugCase
+from utils.OmiePaginator import PaginatorSlugCase
 
 URL = 'https://app.omie.com.br/api/v1/geral/clientes/'
 
@@ -23,7 +24,7 @@ class ClientesListResponse(TypedDict, total=False):
     total_de_registros: int  # total de registros encontrados
     clientes_cadastro_resumido: list[
         ClientesCadastroResumido]  # Cadastro reduzido de produtos
-page_body_key: "clientes_cadastro_resumido"
+
 
 @dataclass
 class ClientesPorCodigo:
@@ -48,7 +49,6 @@ class ClientesListRequest(OmiePageRequestSlugCase):
     exibir_caracteristicas: str | None = None  # string1	Exibe as caracteristicas do cliente.
 
 
-
 @dataclass
 class ListarClientesRequestBody(OmieRequestBody):
     param: list[ClientesListRequest] = field(default_factory=list)
@@ -59,4 +59,10 @@ def listar_clientes(params: ClientesListRequest):
     return requests.post(URL, json=asdict(
         ListarClientesRequestBody(param=[params])))
 
-poster=listar_clientes
+
+def get(request: ClientesListRequest) -> list[ClientesCadastroResumido]:
+    return PaginatorSlugCase(
+        request,
+        poster=listar_clientes,
+        page_body_key="clientes_cadastro_resumido"
+    ).concat_all_pages()
