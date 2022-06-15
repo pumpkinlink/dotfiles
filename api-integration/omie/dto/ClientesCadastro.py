@@ -11,7 +11,6 @@ URL = 'https://app.omie.com.br/api/v1/geral/clientes/'
 
 class ClientesCadastroResumido(TypedDict, total=False):
     codigo_cliente: int  # Código de Cliente / Fornecedor
-    codigo_cliente_integracao: str  # string20	Código de Integração com sistemas legados.
     razao_social: str  # string60	Razão Social+
     nome_fantasia: str  # string100	Nome Fantasia+
     cnpj_cpf: str  # string20	CNPJ / CPF+
@@ -29,7 +28,6 @@ class ClientesListResponse(TypedDict, total=False):
 @dataclass
 class ClientesPorCodigo:
     codigo_cliente_omie: int | None = None  # Código de Cliente / Fornecedor
-    codigo_cliente_integracao: str | None = None  # string20	Código de Integração com sistemas legados.
 
 
 @dataclass
@@ -46,7 +44,6 @@ class ClientesListRequest(OmiePageRequestSlugCase):
     # clientesFiltro:	clientesFiltro	Filtrar cadastro de clientes
     clientesPorCodigo: list[ClientesPorCodigo] = field(
         default_factory=list)  # Lista de Códigos para filtro de clientes
-    exibir_caracteristicas: str | None = None  # string1	Exibe as caracteristicas do cliente.
 
 
 @dataclass

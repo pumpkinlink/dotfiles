@@ -49,7 +49,7 @@ class Detalhes(TypedDict, total=False):
     cRetISS: str  # Indica que o Valor do ISS informado deve ser retido.
     nValorINSS: str  # Valor do INSS.
     cRetINSS: str  # Indica que o Valor do INSS informado deve ser retido.
-    cCodProjeto: int  # Código do projeto.+
+    cCodProjeto: int | None  # Código do projeto.+
     observacao: str  # Observações do título.
     cCodVendedor: int  # Código do vendedor.+
     nCodComprador: int  # Código do comprador.+
@@ -105,8 +105,8 @@ class Categoria(TypedDict, total=False):
 class Movimento(TypedDict, total=False):
     detalhes: Detalhes  # Detalhes do movimento financeiro.
     resumo: Resumo  # Situação do movimento financeiro.
-    departamentos: list[Departamento]  # Distribuição por departamentos.
-    categorias: list[Categoria]  # Distribuição por Categorias.
+    departamentos: list[Departamento] | None  # Distribuição por departamentos.
+    categorias: list[Categoria] | None  # Distribuição por Categorias.
 
 
 class MfListarResponse(OmieResponseBodyCamelCase, total=False):

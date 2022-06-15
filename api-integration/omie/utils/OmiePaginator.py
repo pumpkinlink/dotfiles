@@ -1,6 +1,7 @@
 import copy
 import json
 from dataclasses import dataclass
+from datetime import date, datetime
 from itertools import chain
 from pprint import pprint
 from typing import Callable, Any
@@ -50,7 +51,10 @@ class PaginatorSlugCase(Paginator):
         self.page_body_key = page_body_key
 
         self.request_params.pagina = 1
-        response = self.post(request_params)
+        try:
+            response = self.post(request_params)
+        except Exception as e: print(e)
+
 
         print_header(self.page_body_key, response, 'pagina')
 
@@ -68,7 +72,8 @@ class PaginatorSlugCase(Paginator):
         return response_body
 
     def get_page(self, page: int) -> OmieResponseBodySlugCase:
-        print("get page ", page)
+        print(self.page_body_key + "-> get page ", page, " ",
+              datetime.now().isoformat())
         if page == 1 and self.first_page is not None:
             return self.first_page
         else:
@@ -119,13 +124,15 @@ class PaginatorCamelCase(Paginator):
         return response_body
 
     def get_page(self, page: int) -> OmieResponseBodyCamelCase:
-        print("get page ", page)
+        print(self.page_body_key, "-> get page ", page, " ",
+              datetime.now().isoformat())
         if page == 1 and self.first_page is not None:
             return self.first_page
         else:
             param = copy.deepcopy(self.request_params)
             param.nPagina = page
-            return self.post(param)
+            response = self.post(param)
+            return response
 
     def concat_all_pages(self) -> list:
         all_pages = map(self.get_page, range(1, self.total_pages + 1))
