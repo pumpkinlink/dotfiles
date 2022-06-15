@@ -7,23 +7,15 @@ from google.cloud import bigquery
 
 import schema
 from dto import MovimentosFinanceiros, CategoriasCadastro, ClientesCadastro
+from dto.BQMovement import partition_field, bigquery_formatter
 from dto.ClientesCadastro import ClientesListRequest, ClientesPorCodigo
 from dto.MovimentosFinanceiros import MfListarRequest
-from schema import partition_field, bigquery_formatter
 from utils.bigqueryutil import create_table_if_not_exists, insert_rows_bq
 
 SOURCE_DATE_FORMAT = '%d/%m/%Y'
 BIGQUERY_DATE_FORMAT = '%Y-%m-%d'
 
 client = bigquery.Client()
-
-
-#
-# def compare_department(
-#     dd: DepartamentoCadastro.departamento,
-#     md: MovimentosFinanceiros.Departamento
-# ):
-#     return dd['codigo'] == md['cCodDepartamento']
 
 
 def hello(event, context):
