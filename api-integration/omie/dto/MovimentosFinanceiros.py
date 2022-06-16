@@ -114,7 +114,7 @@ class MfListarResponse(OmieResponseBodyCamelCase, total=False):
         Movimento]  # Listagem da movimentação financeira (Contas a Pagar, Contas a Receber e Lançamentos do Conta Corrente).
 
 
-@dataclass
+@dataclass(slots=True)
 class MfListarRequest(OmiePageRequestCamelCase):
     """
     Solicitação de Listagem da movimentação financeira (Contas a Pagar, Contas a Receber e Lançamentos do Conta Corrente).
@@ -152,7 +152,7 @@ class MfListarRequest(OmiePageRequestCamelCase):
         'ATRASADO'] = None  # string100	Status do título.+Pode ser:
 
 
-@dataclass
+@dataclass(slots=True)
 class ListarMovimentosRequestBody(OmieRequestBody):
     param: list[MfListarRequest] = field(default_factory=list)
     call: str = "ListarMovimentos"

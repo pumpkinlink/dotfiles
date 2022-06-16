@@ -8,7 +8,7 @@ app_secret = os.environ.get(
     'omie_app_secret')
 
 
-@dataclass
+@dataclass(slots=True)
 class OmieRequestBody:
     call: str = None
     app_key: str = app_key
@@ -30,13 +30,13 @@ class OmieResponseBodySlugCase(TypedDict, total=True):
     total_de_registros: int  # Total de registros encontrados.
 
 
-@dataclass
+@dataclass(slots=True)
 class OmiePageRequestCamelCase:
     nPagina: int = 1  # Número da página que será listada.
     nRegPorPagina: int = 500  # Número de registros retornados (max 500)
 
 
-@dataclass
+@dataclass(slots=True)
 class OmiePageRequestSlugCase:
     pagina: int = 1  # Número da página que será listada.
     registros_por_pagina: int = 500  # Número de registros retornados (max 500)

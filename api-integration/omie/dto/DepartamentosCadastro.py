@@ -11,12 +11,12 @@ from utils.OmiePaginator import PaginatorSlugCase
 URL = 'https://app.omie.com.br/api/v1/geral/departamentos/'
 
 
-@dataclass
+@dataclass(slots=True)
 class DepartamentoListarRequest(OmiePageRequestSlugCase):
     pass
 
 
-@dataclass
+@dataclass(slots=True)
 class ListarDepartamentosRequestBody(OmieRequestBody):
     param: list[DepartamentoListarRequest] = field(default_factory=list)
     call: str = "ListarDepartamentos"

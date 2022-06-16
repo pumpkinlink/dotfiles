@@ -11,13 +11,13 @@ from utils.OmiePaginator import PaginatorSlugCase
 URL = 'https://app.omie.com.br/api/v1/geral/categorias/'
 
 
-@dataclass
+@dataclass(slots=True)
 class CategoriaListRequest(OmiePageRequestSlugCase):
     filtrar_apenas_ativo: Literal[
         'S', 'N'] = "N"  # Fitrar apenas categorias ativas
 
 
-@dataclass
+@dataclass(slots=True)
 class ListarCategoriasRequestBody(OmieRequestBody):
     param: list[CategoriaListRequest] = field(default_factory=list)
     call: str = "ListarCategorias"

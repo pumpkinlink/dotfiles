@@ -1,7 +1,7 @@
 import copy
 import json
 from dataclasses import dataclass
-from datetime import date, datetime
+from datetime import datetime
 from itertools import chain
 from pprint import pprint
 from typing import Callable, Any
@@ -29,7 +29,7 @@ def print_header(
     pprint(header)
 
 
-@dataclass
+@dataclass(slots=True)
 class Paginator:
     page_body_key: str
     object_hook: Callable[[dict], Any | None]
@@ -78,7 +78,7 @@ class PaginatorSlugCase(Paginator):
             return self.first_page
         else:
             param = copy.deepcopy(self.request_params)
-            param.nPagina = page
+            param.pagina = page
             return self.post(param)
 
     def concat_all_pages(self) -> list:

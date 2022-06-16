@@ -69,3 +69,4 @@ def insert_rows_bq(client: Client, table_id, dataset_id, project_id, data):
         print(len(resp))
         print(resp[0])
         pprint(data[0])
+    return resp

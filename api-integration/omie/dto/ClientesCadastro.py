@@ -25,12 +25,12 @@ class ClientesListResponse(TypedDict, total=False):
         ClientesCadastroResumido]  # Cadastro reduzido de produtos
 
 
-@dataclass
+@dataclass(slots=True)
 class ClientesPorCodigo:
     codigo_cliente_omie: int | None = None  # Código de Cliente / Fornecedor
 
 
-@dataclass
+@dataclass(slots=True)
 class ClientesListRequest(OmiePageRequestSlugCase):
     apenas_importado_api: str | None = None  # string1	Exibir apenas os registros gerados pela API
     ordenar_por: str | None = None  # string100	Ordem de exibição dos dados. Padrão: Código.
@@ -46,7 +46,7 @@ class ClientesListRequest(OmiePageRequestSlugCase):
         default_factory=list)  # Lista de Códigos para filtro de clientes
 
 
-@dataclass
+@dataclass(slots=True)
 class ListarClientesRequestBody(OmieRequestBody):
     param: list[ClientesListRequest] = field(default_factory=list)
     call: str = "ListarClientesResumido"

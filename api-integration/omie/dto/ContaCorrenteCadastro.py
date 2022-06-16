@@ -11,7 +11,7 @@ from utils.OmiePaginator import PaginatorSlugCase
 URL = 'https://app.omie.com.br/api/v1/geral/contacorrente/'
 
 
-@dataclass
+@dataclass(slots=True)
 class FinContaCorrenteListarRequest(OmiePageRequestSlugCase):
     codigo: int = None  # Código da conta corrente no Omie.
     ordenar_por: Literal[
@@ -24,7 +24,7 @@ class FinContaCorrenteListarRequest(OmiePageRequestSlugCase):
         'S', 'N'] = None  # string1	Filtrar apenas contas correntes ativas
 
 
-@dataclass
+@dataclass(slots=True)
 class ListarContaCorrenteRequestBody(OmieRequestBody):
     param: list[FinContaCorrenteListarRequest] = field(default_factory=list)
     call: str = "ListarResumoContasCorrentes"

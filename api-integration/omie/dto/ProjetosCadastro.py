@@ -11,7 +11,7 @@ from utils.OmiePaginator import PaginatorSlugCase
 URL = 'https://app.omie.com.br/api/v1/geral/projetos/'
 
 
-@dataclass
+@dataclass(slots=True)
 class ProjListarRequest(OmiePageRequestSlugCase):
     ordenar_por: str = None  # string100	Ordenar o resultado da página por
 
@@ -23,7 +23,7 @@ class ProjListarRequest(OmiePageRequestSlugCase):
     ordem_descrescente: str = None  # string1	Indica se a ordem de exibição é decrescente caso seja informado "S".
 
 
-@dataclass
+@dataclass(slots=True)
 class ProjListarRequestBody(OmieRequestBody):
     param: list[ProjListarRequest] = field(default_factory=list)
     call: str = "ListarProjetos"
