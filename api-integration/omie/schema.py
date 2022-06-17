@@ -119,7 +119,7 @@ categorias = field(name="categorias",
                        field('nDistrValor', NUMERIC),
                        field('nValorFixo', STRING)
                    ))
-movimentos_schema = [
+movimentos_schema: list[SchemaField] = [
     *detalhes,
     *resumo,
     departamentos,

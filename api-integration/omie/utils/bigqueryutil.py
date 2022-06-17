@@ -1,3 +1,4 @@
+import logging
 from pprint import pprint
 from time import sleep
 from typing import Sequence, Mapping
@@ -25,7 +26,7 @@ def create_table_if_not_exists(
         dataset = bigquery.Dataset(dataset_ref)
         dataset.location = "US"
         dataset = client.create_dataset(dataset)  # Make an API request.
-        print(
+        logging.info(
             "Created dataset {}.{}".format(client.project, dataset.dataset_id))
         sleep(1)
 
@@ -47,7 +48,7 @@ def create_table_if_not_exists(
             table.clustering_fields = clustering_fields
 
         table = client.create_table(table)  # Make an API request.
-        print(
+        logging.info(
             "Created table {}.{}.{}".format(table.project, table.dataset_id,
                                             table.table_id))
 
@@ -58,15 +59,17 @@ def insert_rows_bq(client: Client, table_id, dataset_id, project_id, data):
     table_ref = "{}.{}.{}".format(project_id, dataset_id, table_id)
     table = client.get_table(table_ref)
 
-    resp = client.insert_rows_json(
+    resp = client.load_table_from_json(
+        num_retries=0,
         json_rows=data,
-        table=table_ref,
-    )
+        destination=table_ref,
+        job_config=bigquery.LoadJobConfig(
+            schema=table.schema,
+        )
+    ).result()
 
-    if len(resp) == 0:
-        print("Success uploaded to table {}".format(table.table_id))
+    if resp.error_result is None:
+        logging.debug("Success uploaded to table {}".format(table.table_id))
     else:
-        print(len(resp))
-        print(resp[0])
         pprint(data[0])
-    return resp
+    return resp.errors

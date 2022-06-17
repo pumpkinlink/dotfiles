@@ -6,7 +6,7 @@ from dto.ClientesCadastro import ClientesCadastroResumido
 from dto.ContaCorrenteCadastro import ContaCorrente
 from dto.ProjetosCadastro import Projeto
 
-SOURCE_DATE_FORMAT = '%d/%m/%Y'
+OMIE_DATE_FORMAT = '%d/%m/%Y'
 BIGQUERY_DATE_FORMAT = '%Y-%m-%d'
 
 
@@ -110,7 +110,7 @@ def bigquery_formatter(dct):
     for key, value in dct.items():
         if isinstance(value, str) and re.search("^dDt", key):
             dct[key] = datetime.datetime \
-                .strptime(value, SOURCE_DATE_FORMAT) \
+                .strptime(value, OMIE_DATE_FORMAT) \
                 .date() \
                 .strftime(BIGQUERY_DATE_FORMAT)
         elif isinstance(value, float) and key in [

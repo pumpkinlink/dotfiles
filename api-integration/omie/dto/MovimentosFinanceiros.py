@@ -168,15 +168,12 @@ var1: ListarMovimentosRequestBody = ListarMovimentosRequestBody(
 )
 
 
-def get(request: MfListarRequest,
-    object_hook: Callable[[dict], Any | None],
-) -> list[Movimento]:
-    movimento_paginator = PaginatorCamelCase(
+def get_paginator(object_hook:Callable[[dict], Any | None], request:MfListarRequest):
+    return PaginatorCamelCase(
         request,
         poster=listar_movimentos,
         object_hook=object_hook,
         page_body_key="movimentos"
     )
-    return movimento_paginator.concat_all_pages()
 
 # var2 : MfListarResponse = MfListarResponse(movimentos=[])

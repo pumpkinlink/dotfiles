@@ -1,9 +1,9 @@
 import copy
 import json
+import logging
 from dataclasses import dataclass
 from datetime import datetime
 from itertools import chain
-from pprint import pprint
 from typing import Callable, Any
 
 from requests import Response
@@ -14,7 +14,7 @@ from dto.OmieEndpoint import OmieResponseBodyCamelCase, \
 
 def handle_error(response):
     if response.status_code != 200:
-        print(response.status_code, response.content)
+        logging.error(response.status_code, response.content)
         raise Exception(response.content)
 
 
@@ -25,8 +25,7 @@ def print_header(
 ):
     header = {x: response[x] for x in response if
               x not in [page_body_key, page_number_key]}
-    print(page_body_key + " -> ")
-    pprint(header)
+    logging.debug(page_body_key + " -> ", header)
 
 
 @dataclass(slots=True)
@@ -53,8 +52,9 @@ class PaginatorSlugCase(Paginator):
         self.request_params.pagina = 1
         try:
             response = self.post(request_params)
-        except Exception as e: print(e)
-
+        except Exception as e:
+            logging.error(e)
+            raise e
 
         print_header(self.page_body_key, response, 'pagina')
 
@@ -72,8 +72,8 @@ class PaginatorSlugCase(Paginator):
         return response_body
 
     def get_page(self, page: int) -> OmieResponseBodySlugCase:
-        print(self.page_body_key + "-> get page ", page, " ",
-              datetime.now().isoformat())
+        logging.debug(
+            f'{self.page_body_key} -> get page {page} {datetime.now().isoformat()}')
         if page == 1 and self.first_page is not None:
             return self.first_page
         else:
@@ -124,8 +124,8 @@ class PaginatorCamelCase(Paginator):
         return response_body
 
     def get_page(self, page: int) -> OmieResponseBodyCamelCase:
-        print(self.page_body_key, "-> get page ", page, " ",
-              datetime.now().isoformat())
+        logging.debug(
+            f'{self.page_body_key} -> get page {page} {datetime.now().isoformat()}')
         if page == 1 and self.first_page is not None:
             return self.first_page
         else:
