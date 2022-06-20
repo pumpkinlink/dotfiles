@@ -25,7 +25,7 @@ def print_header(
 ):
     header = {x: response[x] for x in response if
               x not in [page_body_key, page_number_key]}
-    logging.debug(page_body_key + " -> ", header)
+    logging.info(f'{page_body_key} -> {header}')
 
 
 @dataclass(slots=True)

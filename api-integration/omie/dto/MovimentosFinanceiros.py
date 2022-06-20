@@ -168,7 +168,8 @@ var1: ListarMovimentosRequestBody = ListarMovimentosRequestBody(
 )
 
 
-def get_paginator(object_hook:Callable[[dict], Any | None], request:MfListarRequest):
+def get_paginator(object_hook: Callable[[dict], Any | None],
+    request: MfListarRequest):
     return PaginatorCamelCase(
         request,
         poster=listar_movimentos,

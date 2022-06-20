@@ -7,7 +7,8 @@ from dto.ContaCorrenteCadastro import ContaCorrente
 from dto.ProjetosCadastro import Projeto
 
 OMIE_DATE_FORMAT = '%d/%m/%Y'
-BIGQUERY_DATE_FORMAT = '%Y-%m-%d'
+ISO_DATE_FORMAT = '%Y-%m-%d'
+BIGQUERY_DATE_FORMAT = ISO_DATE_FORMAT
 
 
 class BQCategory(MovimentosFinanceiros.Categoria):
