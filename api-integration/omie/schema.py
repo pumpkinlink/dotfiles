@@ -16,15 +16,17 @@ resumo = [
     field('nMulta', NUMERIC),
     field('nValLiquido', NUMERIC)
 ]
+n_cod_titulo = 'nCodTitulo'
+d_dt_pagamento = 'dDtPagamento'
 detalhes = [
-    field('nCodTitulo', INTEGER),
+    field(n_cod_titulo, INTEGER),
     field('cCodIntTitulo', STRING),
     field('cNumTitulo', STRING),
 
     field('dDtEmissao', DATE),
     field('dDtVenc', DATE),
     field('dDtPrevisao', DATE),
-    field('dDtPagamento', DATE),
+    field(d_dt_pagamento, DATE),
 
     field('nCodCliente', INTEGER),
     field('cCPFCNPJCliente', STRING),

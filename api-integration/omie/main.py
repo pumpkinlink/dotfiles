@@ -2,7 +2,7 @@ import logging
 import os
 import threading
 from dataclasses import dataclass
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, date
 from typing import TypedDict
 
 from dateutil import parser as date_parser
@@ -14,7 +14,7 @@ from dto import MovimentosFinanceiros, CategoriasCadastro, ClientesCadastro, \
     BQMovement, ContaCorrenteCadastro, DepartamentosCadastro, \
     ProjetosCadastro
 from dto.BQMovement import partition_field, bigquery_formatter, \
-    OMIE_DATE_FORMAT, ISO_DATE_FORMAT
+    OMIE_DATE_FORMAT
 from dto.ClientesCadastro import ClientesListRequest, ClientesPorCodigo
 from dto.MovimentosFinanceiros import MfListarRequest, MfListarResponse, \
     Movimento
@@ -31,11 +31,17 @@ logging.basicConfig(
 
 
 class Attributes(TypedDict, total=False):
+    """
+    map (key: string, value: string)
+    Attributes for this message. If this field is empty, the message must contain non-empty data. This can be used to filter messages on the subscription.
+
+    An object containing a list of "key": value pairs. Example: { "name": "wrench", "mass": "1.3kg", "count": "3" }.
+    """
     tableId: str
     tempTableId: str
     datasetId: str
     projectId: str
-    startDate: str
+    daysInterval: str
     isInitialLoad: str
 
 
@@ -49,13 +55,18 @@ class StarSchemaTables:
 
 def migrate(event: dict, context: Context):
     attributes: Attributes = event['attributes']
-    start_date = attributes['startDate']
-    end_date = format(
-        date_parser.parse(context.timestamp).date(),
+    end_date = date_parser.parse(context.timestamp).date()
+    start_date = end_date - timedelta(days=int(attributes['daysInterval']))
+    start_date_br = format(
+        start_date,
         OMIE_DATE_FORMAT
     )
-    request_body = MfListarRequest(dDtPagtoDe=start_date,
-                                   dDtPagtoAte=end_date,
+    end_date_br = format(
+        end_date,
+        OMIE_DATE_FORMAT
+    )
+    request_body = MfListarRequest(dDtPagtoDe=start_date_br,
+                                   dDtPagtoAte=end_date_br,
                                    nRegPorPagina=500,
                                    cStatus='LIQUIDADO')
     paginator = MovimentosFinanceiros.get_paginator(request=request_body,
@@ -90,17 +101,13 @@ def migrate(event: dict, context: Context):
             dataset_ref=dataset_ref,
             table_id=table_id,
             temp_table_id=attributes['tempTableId'],
-            paginator=paginator
+            paginator=paginator,
+            start_date=start_date
         )
 
 
-def update_table(
-    star_tables: StarSchemaTables,
-    dataset_ref: str,
-    table_id: str,
-    temp_table_id: str,
-    paginator: OmiePaginator
-):
+def update_table(star_tables: StarSchemaTables, dataset_ref: str, table_id: str,
+    temp_table_id: str, paginator: OmiePaginator, start_date: date):
     movements = paginator.concat_all_pages()
     logging.info('buscando clientes...')
     clients = get_clients(movements)
@@ -114,7 +121,8 @@ def update_table(
         table_id=table_id,
         temp_table_id=temp_table_id,
         dataset_ref=dataset_ref,
-        data=bigquery_rows
+        data=bigquery_rows,
+        start_date=start_date
     )
     logging.info(f'Escreveu {len(bigquery_rows)} linhas com sucesso!')
     handle_bq_errors(bq_errors)
@@ -204,13 +212,12 @@ if debug:
                 "tableId": "movimentos",
                 "datasetId": "ideamaker_raw_financial",
                 "projectId": "idea-data-homol",
-                "startDate": '01/01/2022',
+                "startDate": '2022-01-01',
                 "isInitialLoad": 'True'
             }
         },
-        Context(timestamp=format(
-            datetime.now() - timedelta(days=1),
-            ISO_DATE_FORMAT)
-        )
+        Context(timestamp=(
+            datetime.now() - timedelta(days=1)).isoformat()
+                )
         # Context(timestamp='2022-01-01')
     )

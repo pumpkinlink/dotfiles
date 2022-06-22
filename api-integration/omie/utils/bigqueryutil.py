@@ -1,4 +1,5 @@
 import logging
+from datetime import date
 from pprint import pprint
 from time import sleep
 from typing import Sequence, Mapping
@@ -6,7 +7,8 @@ from typing import Sequence, Mapping
 from google.api_core.exceptions import NotFound
 from google.cloud import bigquery
 from google.cloud.bigquery import Client, SchemaField
-from google.cloud.bigquery.enums import QueryApiMethod
+
+from schema import n_cod_titulo, d_dt_pagamento
 
 
 def create_table_if_not_exists(
@@ -78,12 +80,9 @@ def merge_rows_bq(
     table_id: str,
     temp_table_id: str,
     dataset_ref: str,
-    data: list
+    data: list,
+    start_date: date
 ):
-
-    return ['implementar'] #TODO: terminar query
-
-
     table_ref = f'{dataset_ref}.{table_id}'
     table = client.get_table(table_ref)
 
@@ -104,16 +103,23 @@ def merge_rows_bq(
     else:
         return insert_job.errors
 
-    client.query(
-        # language=bigquery
-        query=f'''select m.*
-from (SELECT nCodTitulo
-      FROM "{table_ref}"
-      except
-      distinct
-      (
-      select nCodTitulo
-      from {temp_table_ref})) diff
-         join "{table_ref}" m
-on m.ncodtitulo = diff.ncodtitulo''' ,
-        api_method=QueryApiMethod.QUERY)
+    id_ = n_cod_titulo
+    date_column = d_dt_pagamento
+
+    fields = [field.name for field in table.schema]
+    source_alias = 'source'
+
+    sets = ', '.join([f'{field} = {source_alias}.{field}' for field in fields])
+
+    target = table_ref
+    source = temp_table_ref
+    start_date_iso = start_date.isoformat()
+    # language=sql
+    query = f'''MERGE INTO `{target}` AS target
+USING `{source}` AS {source_alias}
+ON target.{id_} = {source_alias}.{id_}
+WHEN MATCHED AND {target}.{date_column} >= {start_date_iso} THEN
+    UPDATE SET {sets}
+WHEN NOT MATCHED AND {target}.{date_column} >= {start_date_iso} THEN
+    INSERT ROW
+'''

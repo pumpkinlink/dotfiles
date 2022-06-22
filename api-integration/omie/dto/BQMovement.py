@@ -7,8 +7,6 @@ from dto.ContaCorrenteCadastro import ContaCorrente
 from dto.ProjetosCadastro import Projeto
 
 OMIE_DATE_FORMAT = '%d/%m/%Y'
-ISO_DATE_FORMAT = '%Y-%m-%d'
-BIGQUERY_DATE_FORMAT = ISO_DATE_FORMAT
 
 
 class BQCategory(MovimentosFinanceiros.Categoria):
@@ -112,8 +110,7 @@ def bigquery_formatter(dct):
         if isinstance(value, str) and re.search("^dDt", key):
             dct[key] = datetime.datetime \
                 .strptime(value, OMIE_DATE_FORMAT) \
-                .date() \
-                .strftime(BIGQUERY_DATE_FORMAT)
+                .date().isoformat()
         elif isinstance(value, float) and key in [
             'nValorTitulo',
             'nValorPIS',
