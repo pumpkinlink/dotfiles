@@ -1,11 +1,9 @@
-from dataclasses import dataclass
 import os
+from dataclasses import dataclass
 from typing import Sequence, TypedDict
 
-app_key = os.environ.get(
-    'omie_app_key')
-app_secret = os.environ.get(
-    'omie_app_secret')
+app_key = os.environ.get("omie_app_key")
+app_secret = os.environ.get("omie_app_secret")
 
 
 @dataclass(slots=True)

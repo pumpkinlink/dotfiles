@@ -4,17 +4,19 @@ from typing import TypedDict, Literal
 import requests
 from requests import Response
 
-from dto.omie_endpoint import OmieRequestBody, OmiePageRequestSlugCase, \
-    OmieResponseBodySlugCase
+from dto.omie_endpoint import (
+    OmieRequestBody,
+    OmiePageRequestSlugCase,
+    OmieResponseBodySlugCase,
+)
 from utils.omie_paginator import PaginatorSlugCase
 
-URL = 'https://app.omie.com.br/api/v1/geral/categorias/'
+URL = "https://app.omie.com.br/api/v1/geral/categorias/"
 
 
 @dataclass(slots=True)
 class CategoriaListRequest(OmiePageRequestSlugCase):
-    filtrar_apenas_ativo: Literal[
-        'S', 'N'] = "N"  # Fitrar apenas categorias ativas
+    filtrar_apenas_ativo: Literal["S", "N"] = "N"  # Filtrar apenas categorias ativas
 
 
 @dataclass(slots=True)
@@ -34,13 +36,12 @@ class CategoriaListFullResponse(OmieResponseBodySlugCase, total=False):
 
 
 def listar_categorias(params: CategoriaListRequest) -> Response:
-    return requests.post(URL, json=asdict(
-        ListarCategoriasRequestBody(param=[params])))
+    return requests.post(URL, json=asdict(ListarCategoriasRequestBody(param=[params])))
 
 
 def get_all() -> list[CategoriaCadastro]:
     return PaginatorSlugCase(
         CategoriaListRequest(),
         poster=listar_categorias,
-        page_body_key='categoria_cadastro'
+        page_body_key="categoria_cadastro",
     ).concat_all_pages()

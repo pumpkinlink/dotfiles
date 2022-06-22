@@ -4,11 +4,14 @@ from typing import TypedDict
 import requests
 from requests import Response
 
-from dto.omie_endpoint import OmieRequestBody, OmiePageRequestSlugCase, \
-    OmieResponseBodySlugCase
+from dto.omie_endpoint import (
+    OmieRequestBody,
+    OmiePageRequestSlugCase,
+    OmieResponseBodySlugCase,
+)
 from utils.omie_paginator import PaginatorSlugCase
 
-URL = 'https://app.omie.com.br/api/v1/geral/departamentos/'
+URL = "https://app.omie.com.br/api/v1/geral/departamentos/"
 
 
 @dataclass(slots=True)
@@ -32,13 +35,14 @@ class DepartamentoListarResponse(OmieResponseBodySlugCase, total=False):
 
 
 def listar_departamentos(params: DepartamentoListarRequest) -> Response:
-    return requests.post(URL, json=asdict(
-        ListarDepartamentosRequestBody(param=[params])))
+    return requests.post(
+        URL, json=asdict(ListarDepartamentosRequestBody(param=[params]))
+    )
 
 
 def get_all() -> list[Departamento]:
     return PaginatorSlugCase(
         DepartamentoListarRequest(),
         poster=listar_departamentos,
-        page_body_key='departamentos'
+        page_body_key="departamentos",
     ).concat_all_pages()

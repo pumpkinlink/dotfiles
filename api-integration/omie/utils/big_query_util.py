@@ -17,7 +17,7 @@ def create_table_if_not_exists(
     dataset_ref: str,
     schema: Sequence[SchemaField | Mapping[str, any]],
     partitioning_field: str | None = None,
-    clustering_fields: list[str] | None = None
+    clustering_fields: list[str] | None = None,
 ):
     try:
         client.get_dataset(dataset_ref)  # Make an API request.
@@ -27,8 +27,7 @@ def create_table_if_not_exists(
         dataset = bigquery.Dataset(dataset_ref)
         dataset.location = "US"
         dataset = client.create_dataset(dataset)  # Make an API request.
-        logging.info(
-            "Created dataset {}.{}".format(client.project, dataset.dataset_id))
+        logging.info("Created dataset {}.{}".format(client.project, dataset.dataset_id))
         sleep(1)
 
     try:
@@ -42,8 +41,7 @@ def create_table_if_not_exists(
 
         # noinspection PyTypeChecker
         table.time_partitioning = bigquery.TimePartitioning(
-            type_=bigquery.TimePartitioningType.MONTH,
-            field=partitioning_field
+            type_=bigquery.TimePartitioningType.MONTH, field=partitioning_field
         )
 
         if clustering_fields is not None:
@@ -52,14 +50,16 @@ def create_table_if_not_exists(
         table = client.create_table(table)  # Make an API request.
         sleep(1)
         logging.info(
-            "Created table {}.{}.{}".format(table.project, table.dataset_id,
-                                            table.table_id))
+            "Created table {}.{}.{}".format(
+                table.project, table.dataset_id, table.table_id
+            )
+        )
 
-    return 'ok'
+    return "ok"
 
 
 def insert_rows_bq(client: Client, table_id, dataset_ref, data):
-    table_ref = f'{dataset_ref}.{table_id}'
+    table_ref = f"{dataset_ref}.{table_id}"
     table = client.get_table(table_ref)
 
     resp = client.load_table_from_json(
@@ -68,7 +68,7 @@ def insert_rows_bq(client: Client, table_id, dataset_ref, data):
         destination=table_ref,
         job_config=bigquery.LoadJobConfig(
             schema=table.schema,
-        )
+        ),
     ).result()
 
     if resp.error_result is None:
@@ -84,12 +84,12 @@ def merge_rows_bq(
     temp_table_id: str,
     dataset_ref: str,
     data: list,
-    start_date: date
+    start_date: date,
 ):
-    table_ref = f'{dataset_ref}.{table_id}'
+    table_ref = f"{dataset_ref}.{table_id}"
     table = client.get_table(table_ref)
 
-    temp_table_ref = f'{dataset_ref}.{temp_table_id}'
+    temp_table_ref = f"{dataset_ref}.{temp_table_id}"
     client.delete_table(temp_table_ref)
 
     insert_job = client.load_table_from_json(
@@ -98,7 +98,7 @@ def merge_rows_bq(
         destination=temp_table_ref,
         job_config=bigquery.LoadJobConfig(
             schema=table.schema,
-        )
+        ),
     ).result()
 
     if insert_job.error_result is None:
@@ -110,19 +110,19 @@ def merge_rows_bq(
     date_column = d_dt_pagamento
 
     fields = [field.name for field in table.schema]
-    source_alias = 'source'
+    source_alias = "source"
 
-    sets = ', '.join([f'{field} = {source_alias}.{field}' for field in fields])
+    sets = ", ".join([f"{field} = {source_alias}.{field}" for field in fields])
 
     target = table_ref
     source = temp_table_ref
     start_date_iso = start_date.isoformat()
     # language=sql
-    query = f'''MERGE INTO `{target}` AS target
+    query = f"""MERGE INTO `{target}` AS target
 USING `{source}` AS {source_alias}
 ON target.{id_} = {source_alias}.{id_}
 WHEN MATCHED AND {target}.{date_column} >= {start_date_iso} THEN
     UPDATE SET {sets}
 WHEN NOT MATCHED AND {target}.{date_column} >= {start_date_iso} THEN
     INSERT ROW
-'''
+"""

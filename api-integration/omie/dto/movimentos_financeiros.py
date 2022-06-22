@@ -4,17 +4,21 @@ from typing import Literal, TypedDict, Callable, Any
 import requests
 from requests import Response
 
-from dto.omie_endpoint import OmieRequestBody, OmieResponseBodyCamelCase, \
-    OmiePageRequestCamelCase
+from dto.omie_endpoint import (
+    OmieRequestBody,
+    OmieResponseBodyCamelCase,
+    OmiePageRequestCamelCase,
+)
 from utils.omie_paginator import PaginatorCamelCase
 
-URL = 'https://app.omie.com.br/api/v1/financas/mf/'
+URL = "https://app.omie.com.br/api/v1/financas/mf/"
 
 
 class Detalhes(TypedDict, total=False):
     """
     Detalhes do movimento financeiro.
     """
+
     nCodTitulo: int  # Código do titulo.+
     cCodIntTitulo: str  # Código de integração do título.+
     cNumTitulo: str  # Número do título.+
@@ -111,7 +115,8 @@ class Movimento(TypedDict, total=False):
 
 class MfListarResponse(OmieResponseBodyCamelCase, total=False):
     movimentos: list[
-        Movimento]  # Listagem da movimentação financeira (Contas a Pagar, Contas a Receber e Lançamentos do Conta Corrente).
+        Movimento
+    ]  # Listagem da movimentação financeira (Contas a Pagar, Contas a Receber e Lançamentos do Conta Corrente).
 
 
 @dataclass(slots=True)
@@ -121,35 +126,37 @@ class MfListarRequest(OmiePageRequestCamelCase):
     """
 
     cOrdenarPor: Literal[
-        'CODIGO', 'CODIGO_INTEGRACAO'] = None  # (string[100]):	Ordem de exibição dos dados.
+        "CODIGO", "CODIGO_INTEGRACAO"
+    ] = None  # (string[100]):	Ordem de exibição dos dados.
     lDadosCad: bool = True  # Exibir dados cadastrais como a Data de Inclusão e Alteração do título (S/N)?
     dDtEmisDe: str = None  # (string[10]):	Data de emissão
     dDtEmisAte: str = None  # (string[10]):	Data de emissão
     dDtVencDe: str = None  # (string[10]):	Data de vencimento.
     dDtVencAte: str = None  # (string[10]):	Data de vencimento.
-    dDtPagtoDe: str = '01/01/1901'  # (string[10]):	Data de pagamento
+    dDtPagtoDe: str = "01/01/1901"  # (string[10]):	Data de pagamento
     dDtPagtoAte: str = None  # (string[10]):	Data de pagamento
     dDtPrevDe: str = None  # (string[10]):	Data de previsão de Pagamento/Recebimento.
     dDtPrevAte: str = None  # (string[10]):	Data de previsão de Pagamento/Recebimento.
     dDtRegDe: str = None  # (string[10]):	Data de registro da NF.
     dDtRegAte: str = None  # (string[10]):	Data de registro da NF.
-    cNatureza: Literal[
-        'P', 'R'] = None  # (string[1]):	Natureza do título.+
+    cNatureza: Literal["P", "R"] = None  # (string[1]):	Natureza do título.+
     dDtIncDe: str = None  # (string[10]):	Data de inclusão
     dDtIncAte: str = None  # (string[10]):	Data de inclusão
     dDtAltDe: str = None  # (string[10]):	Data de alteração
     dDtAltAte: str = None  # (string[10]):	Data de alteração
     cExibirDepartamentos: Literal[
-        'S', 'N'] = 'S'  # Exibir distribuição por departamentos.
+        "S", "N"
+    ] = "S"  # Exibir distribuição por departamentos.
     cStatus: Literal[
-        'CANCELADO',
-        'RECEBIDO',
-        'LIQUIDADO',
-        'EMABERTO',
-        'PAGTO_PARCIAL',
-        'VENCEHOJE',
-        'AVENCER',
-        'ATRASADO'] = None  # string100	Status do título.+Pode ser:
+        "CANCELADO",
+        "RECEBIDO",
+        "LIQUIDADO",
+        "EMABERTO",
+        "PAGTO_PARCIAL",
+        "VENCEHOJE",
+        "AVENCER",
+        "ATRASADO",
+    ] = None  # string100	Status do título.+Pode ser:
 
 
 @dataclass(slots=True)
@@ -159,22 +166,21 @@ class ListarMovimentosRequestBody(OmieRequestBody):
 
 
 def listar_movimentos(params: MfListarRequest) -> Response:
-    return requests.post(URL, json=asdict(
-        ListarMovimentosRequestBody(param=[params])))
+    return requests.post(URL, json=asdict(ListarMovimentosRequestBody(param=[params])))
 
 
 var1: ListarMovimentosRequestBody = ListarMovimentosRequestBody(
-    param=[MfListarRequest(nPagina=1, dDtRegDe='01/01/2022')]
+    param=[MfListarRequest(nPagina=1, dDtRegDe="01/01/2022")]
 )
 
 
-def get_paginator(object_hook: Callable[[dict], Any | None],
-    request: MfListarRequest):
+def get_paginator(object_hook: Callable[[dict], Any | None], request: MfListarRequest):
     return PaginatorCamelCase(
         request,
         poster=listar_movimentos,
         object_hook=object_hook,
-        page_body_key="movimentos"
+        page_body_key="movimentos",
     )
+
 
 # var2 : MfListarResponse = MfListarResponse(movimentos=[])

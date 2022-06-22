@@ -6,7 +6,7 @@ import requests
 from dto.omie_endpoint import OmieRequestBody, OmiePageRequestSlugCase
 from utils.omie_paginator import PaginatorSlugCase
 
-URL = 'https://app.omie.com.br/api/v1/geral/clientes/'
+URL = "https://app.omie.com.br/api/v1/geral/clientes/"
 
 
 class ClientesCadastroResumido(TypedDict, total=False):
@@ -22,7 +22,8 @@ class ClientesListResponse(TypedDict, total=False):
     registros: int  # Número de registros retornados na página.
     total_de_registros: int  # total de registros encontrados
     clientes_cadastro_resumido: list[
-        ClientesCadastroResumido]  # Cadastro reduzido de produtos
+        ClientesCadastroResumido
+    ]  # Cadastro reduzido de produtos
 
 
 @dataclass(slots=True)
@@ -32,18 +33,33 @@ class ClientesPorCodigo:
 
 @dataclass(slots=True)
 class ClientesListRequest(OmiePageRequestSlugCase):
-    apenas_importado_api: str | None = None  # string1	Exibir apenas os registros gerados pela API
-    ordenar_por: str | None = None  # string100	Ordem de exibição dos dados. Padrão: Código.
-    ordem_decrescente: str | None = None  # string1	Se a lista será apresentada em ordem decrescente.
-    filtrar_por_data_de: str | None = None  # string10	Filtrar os registros a partir de uma data.
-    filtrar_por_data_ate: str | None = None  # string10	Filtrar os registros até uma data.
+    apenas_importado_api: str | None = (
+        None  # string1	Exibir apenas os registros gerados pela API
+    )
+    ordenar_por: str | None = (
+        None  # string100	Ordem de exibição dos dados. Padrão: Código.
+    )
+    ordem_decrescente: str | None = (
+        None  # string1	Se a lista será apresentada em ordem decrescente.
+    )
+    filtrar_por_data_de: str | None = (
+        None  # string10	Filtrar os registros a partir de uma data.
+    )
+    filtrar_por_data_ate: str | None = (
+        None  # string10	Filtrar os registros até uma data.
+    )
     filtrar_por_hora_de: str | None = None  # string8	Filtro por hora a partir de.
     filtrar_por_hora_ate: str | None = None  # string8	Filtro por hora até.
-    filtrar_apenas_inclusao: str | None = None  # string1	Filtrar apenas os registros incluídos.
-    filtrar_apenas_alteracao: str | None = None  # string1	Filtrar apenas os registros alterados.
+    filtrar_apenas_inclusao: str | None = (
+        None  # string1	Filtrar apenas os registros incluídos.
+    )
+    filtrar_apenas_alteracao: str | None = (
+        None  # string1	Filtrar apenas os registros alterados.
+    )
     # clientesFiltro:	clientesFiltro	Filtrar cadastro de clientes
     clientesPorCodigo: list[ClientesPorCodigo] = field(
-        default_factory=list)  # Lista de Códigos para filtro de clientes
+        default_factory=list
+    )  # Lista de Códigos para filtro de clientes
 
 
 @dataclass(slots=True)
@@ -53,13 +69,10 @@ class ListarClientesRequestBody(OmieRequestBody):
 
 
 def listar_clientes(params: ClientesListRequest):
-    return requests.post(URL, json=asdict(
-        ListarClientesRequestBody(param=[params])))
+    return requests.post(URL, json=asdict(ListarClientesRequestBody(param=[params])))
 
 
 def get(request: ClientesListRequest) -> list[ClientesCadastroResumido]:
     return PaginatorSlugCase(
-        request,
-        poster=listar_clientes,
-        page_body_key="clientes_cadastro_resumido"
+        request, poster=listar_clientes, page_body_key="clientes_cadastro_resumido"
     ).concat_all_pages()

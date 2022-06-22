@@ -1,17 +1,20 @@
 import copy
 import json
 import logging
+from collections.abc import Callable
 from dataclasses import dataclass
 from datetime import datetime
 from itertools import chain
 from typing import Any
-from collections.abc import Callable
-
 
 from requests import Response
 
-from dto.omie_endpoint import OmieResponseBodyCamelCase, \
-    OmiePageRequestCamelCase, OmieResponseBodySlugCase, OmiePageRequestSlugCase
+from dto.omie_endpoint import (
+    OmieResponseBodyCamelCase,
+    OmiePageRequestCamelCase,
+    OmieResponseBodySlugCase,
+    OmiePageRequestSlugCase,
+)
 
 
 def handle_error(response):
@@ -23,11 +26,12 @@ def handle_error(response):
 def print_header(
     page_body_key: str,
     response: OmieResponseBodyCamelCase | OmieResponseBodySlugCase,
-    page_number_key: str
+    page_number_key: str,
 ):
-    header = {x: response[x] for x in response if
-              x not in [page_body_key, page_number_key]}
-    logging.info(f'{page_body_key} -> {header}')
+    header = {
+        x: response[x] for x in response if x not in [page_body_key, page_number_key]
+    }
+    logging.info(f"{page_body_key} -> {header}")
 
 
 @dataclass(slots=True)
@@ -42,10 +46,13 @@ class PaginatorSlugCase(Paginator):
     request_params: OmiePageRequestSlugCase
     first_page: OmieResponseBodySlugCase = None
 
-    def __init__(self, request_params: OmiePageRequestSlugCase,
+    def __init__(
+        self,
+        request_params: OmiePageRequestSlugCase,
         poster: Callable[..., Response],
         page_body_key: str,
-        object_hook: Callable[[dict], Any | None] = None):
+        object_hook: Callable[[dict], Any | None] = None,
+    ):
         self.poster = poster
         self.request_params = request_params
         self.object_hook = object_hook
@@ -58,24 +65,22 @@ class PaginatorSlugCase(Paginator):
             logging.error(e)
             raise e
 
-        print_header(self.page_body_key, response, 'pagina')
+        print_header(self.page_body_key, response, "pagina")
 
         self.first_page = response
-        self.total_pages = self.first_page['total_de_paginas']
+        self.total_pages = self.first_page["total_de_paginas"]
 
-    def post(self,
-        request: OmiePageRequestSlugCase) -> OmieResponseBodySlugCase:
+    def post(self, request: OmiePageRequestSlugCase) -> OmieResponseBodySlugCase:
         response = self.poster(request)
         handle_error(response)
 
-        response_body = json.loads(
-            response.content,
-            object_hook=self.object_hook)
+        response_body = json.loads(response.content, object_hook=self.object_hook)
         return response_body
 
     def get_page(self, page: int) -> OmieResponseBodySlugCase:
         logging.debug(
-            f'{self.page_body_key} -> get page {page} {datetime.now().isoformat()}')
+            f"{self.page_body_key} -> get page {page} {datetime.now().isoformat()}"
+        )
         if page == 1 and self.first_page is not None:
             return self.first_page
         else:
@@ -110,24 +115,22 @@ class PaginatorCamelCase(Paginator):
         self.request_params.nPagina = 1
         response = self.post(request_params)
 
-        print_header(page_body_key, response, 'nPagina')
+        print_header(page_body_key, response, "nPagina")
 
         self.first_page = response
-        self.total_pages = self.first_page['nTotPaginas']
+        self.total_pages = self.first_page["nTotPaginas"]
 
-    def post(self,
-        request: OmiePageRequestCamelCase) -> OmieResponseBodyCamelCase:
+    def post(self, request: OmiePageRequestCamelCase) -> OmieResponseBodyCamelCase:
         response = self.poster(request)
         handle_error(response)
 
-        response_body = json.loads(
-            response.content,
-            object_hook=self.object_hook)
+        response_body = json.loads(response.content, object_hook=self.object_hook)
         return response_body
 
     def get_page(self, page: int) -> OmieResponseBodyCamelCase:
         logging.debug(
-            f'{self.page_body_key} -> get page {page} {datetime.now().isoformat()}')
+            f"{self.page_body_key} -> get page {page} {datetime.now().isoformat()}"
+        )
         if page == 1 and self.first_page is not None:
             return self.first_page
         else:
