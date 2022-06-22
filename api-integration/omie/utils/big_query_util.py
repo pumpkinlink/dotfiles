@@ -23,6 +23,7 @@ def create_table_if_not_exists(
         client.get_dataset(dataset_ref)  # Make an API request.
 
     except NotFound:
+        # noinspection PyTypeChecker
         dataset = bigquery.Dataset(dataset_ref)
         dataset.location = "US"
         dataset = client.create_dataset(dataset)  # Make an API request.
@@ -36,8 +37,10 @@ def create_table_if_not_exists(
     except NotFound:
         table_ref = f"{dataset_ref}.{table_id}"
 
+        # noinspection PyTypeChecker
         table = bigquery.Table(table_ref, schema=schema)
 
+        # noinspection PyTypeChecker
         table.time_partitioning = bigquery.TimePartitioning(
             type_=bigquery.TimePartitioningType.MONTH,
             field=partitioning_field
