@@ -1,12 +1,12 @@
 from dataclasses import dataclass, field, asdict
-from typing import TypedDict, Literal
+from typing import TypedDict
 
 import requests
 from requests import Response
 
-from dto.OmieEndpoint import OmieRequestBody, OmiePageRequestSlugCase, \
+from dto.omie_endpoint import OmieRequestBody, OmiePageRequestSlugCase, \
     OmieResponseBodySlugCase
-from utils.OmiePaginator import PaginatorSlugCase
+from utils.omie_paginator import PaginatorSlugCase
 
 URL = 'https://app.omie.com.br/api/v1/geral/departamentos/'
 

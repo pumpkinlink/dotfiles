@@ -1,25 +1,25 @@
 import datetime
 import re
 
-from dto import CategoriasCadastro, MovimentosFinanceiros, DepartamentosCadastro
-from dto.ClientesCadastro import ClientesCadastroResumido
-from dto.ContaCorrenteCadastro import ContaCorrente
-from dto.ProjetosCadastro import Projeto
+from dto import categorias, movimentos_financeiros, departamentos
+from dto.clientes import ClientesCadastroResumido
+from dto.contas_correntes import ContaCorrente
+from dto.projetos import Projeto
 
 OMIE_DATE_FORMAT = '%d/%m/%Y'
 
 
-class BQCategory(MovimentosFinanceiros.Categoria):
+class BQCategory(movimentos_financeiros.Categoria):
     descricao_categoria: str | None
 
 
-class BQDepartment(MovimentosFinanceiros.Categoria):
+class BQDepartment(movimentos_financeiros.Categoria):
     descricao_departamento: str | None
 
 
 class BQMovement(
-    MovimentosFinanceiros.Detalhes,
-    MovimentosFinanceiros.Resumo
+    movimentos_financeiros.Detalhes,
+    movimentos_financeiros.Resumo
 ):
     razao_social_cliente: str | None
     descricao_cc: str | None
@@ -33,11 +33,11 @@ partition_field = "dDtPagamento"
 
 
 def get_root_category(
-    movement: MovimentosFinanceiros.Movimento,
-    categories: list[CategoriasCadastro.CategoriaCadastro]
+    movement: movimentos_financeiros.Movimento,
+    categories: list[categorias.CategoriaCadastro]
 ):
     def compare_root_category(
-        cc: CategoriasCadastro.CategoriaCadastro,
+        cc: categorias.CategoriaCadastro,
         code: str
     ):
         if 'codigo' not in cc:
@@ -56,19 +56,19 @@ def get_root_category(
 
 
 def get_categories_array(
-    movement: MovimentosFinanceiros.Movimento,
-    categories: list[CategoriasCadastro.CategoriaCadastro]
+    movement: movimentos_financeiros.Movimento,
+    categories: list[categorias.CategoriaCadastro]
 ) -> list[BQCategory]:
     def compare_array_category(
-        cc: CategoriasCadastro.CategoriaCadastro,
-        mc: MovimentosFinanceiros.Categoria
+        cc: categorias.CategoriaCadastro,
+        mc: movimentos_financeiros.Categoria
     ):
         try:
             return cc['codigo'] == mc['cCodCateg']
         except KeyError:
             return False
 
-    def build_bq_cat(mc: MovimentosFinanceiros.Categoria) -> BQCategory:
+    def build_bq_cat(mc: movimentos_financeiros.Categoria) -> BQCategory:
         result = next(
             filter(lambda cc: compare_array_category(cc=cc, mc=mc), categories),
             {})
@@ -81,19 +81,19 @@ def get_categories_array(
 
 
 def get_departments_array(
-    movement: MovimentosFinanceiros.Movimento,
-    departments: list[DepartamentosCadastro.Departamento]
+    movement: movimentos_financeiros.Movimento,
+    departments: list[departamentos.Departamento]
 ) -> list[BQDepartment]:
     def compare_array_department(
-        dd: DepartamentosCadastro.Departamento,
-        md: MovimentosFinanceiros.Departamento
+        dd: departamentos.Departamento,
+        md: movimentos_financeiros.Departamento
     ):
         try:
             return dd['codigo'] == md['cCodDepartamento']
         except KeyError:
             return False
 
-    def build_bq_dep(md: MovimentosFinanceiros.Departamento) -> BQDepartment:
+    def build_bq_dep(md: movimentos_financeiros.Departamento) -> BQDepartment:
         result = next(
             filter(lambda dd: compare_array_department(dd=dd, md=md),
                    departments), {})
@@ -138,10 +138,10 @@ def bigquery_formatter(dct):
 
 
 def build(
-    m: MovimentosFinanceiros.Movimento,
+    m: movimentos_financeiros.Movimento,
     all_clients: list[ClientesCadastroResumido],
-    all_categories: list[CategoriasCadastro.CategoriaCadastro],
-    all_departments: list[DepartamentosCadastro.Departamento],
+    all_categories: list[categorias.CategoriaCadastro],
+    all_departments: list[departamentos.Departamento],
     all_checking_accounts: list[ContaCorrente],
     all_projects: list[Projeto]
 ):
@@ -160,7 +160,7 @@ def build(
 
 
 def get_client_name(
-    movement: MovimentosFinanceiros.Movimento,
+    movement: movimentos_financeiros.Movimento,
     clients: list[ClientesCadastroResumido]
 ) -> str | None:
     try:
@@ -178,7 +178,7 @@ def get_client_name(
 
 
 def get_account_name(
-    movement: MovimentosFinanceiros.Movimento,
+    movement: movimentos_financeiros.Movimento,
     accounts: list[ContaCorrente]
 ) -> str | None:
     try:
@@ -196,7 +196,7 @@ def get_account_name(
 
 
 def get_project_name(
-    movement: MovimentosFinanceiros.Movimento,
+    movement: movimentos_financeiros.Movimento,
     projects: list[Projeto]
 ) -> str | None:
     try:

@@ -10,17 +10,17 @@ from google.cloud import bigquery
 from google.cloud.functions_v1.context import Context
 
 import schema
-from dto import MovimentosFinanceiros, CategoriasCadastro, ClientesCadastro, \
-    BQMovement, ContaCorrenteCadastro, DepartamentosCadastro, \
-    ProjetosCadastro
-from dto.BQMovement import partition_field, bigquery_formatter, \
+from dto import movimentos_financeiros, categorias, clientes, \
+    contas_correntes, departamentos, \
+    projetos, bq_movement
+from dto.bq_movement import partition_field, bigquery_formatter, \
     OMIE_DATE_FORMAT
-from dto.ClientesCadastro import ClientesListRequest, ClientesPorCodigo
-from dto.MovimentosFinanceiros import MfListarRequest, MfListarResponse, \
+from dto.clientes import ClientesListRequest, ClientesPorCodigo
+from dto.movimentos_financeiros import MfListarRequest, MfListarResponse, \
     Movimento
-from utils import OmiePaginator
-from utils.bigqueryutil import create_table_if_not_exists, insert_rows_bq, \
+from utils.big_query_util import create_table_if_not_exists, insert_rows_bq, \
     merge_rows_bq
+from utils.omie_paginator import PaginatorCamelCase
 
 client = bigquery.Client()
 debug = os.environ.get("DEBUG") == "1"
@@ -47,10 +47,10 @@ class Attributes(TypedDict, total=False):
 
 @dataclass
 class StarSchemaTables:
-    categories: list[CategoriasCadastro]
-    departments: list[DepartamentosCadastro]
-    checking_accounts: list[ContaCorrenteCadastro]
-    projects: list[ProjetosCadastro]
+    categories: list[categorias]
+    departments: list[departamentos]
+    checking_accounts: list[contas_correntes]
+    projects: list[projetos]
 
 
 def migrate(event: dict, context: Context):
@@ -69,16 +69,16 @@ def migrate(event: dict, context: Context):
                                    dDtPagtoAte=end_date_br,
                                    nRegPorPagina=500,
                                    cStatus='LIQUIDADO')
-    paginator = MovimentosFinanceiros.get_paginator(request=request_body,
-                                                    object_hook=bigquery_formatter)
+    paginator = movimentos_financeiros.get_paginator(request=request_body,
+                                                     object_hook=bigquery_formatter)
 
     table_id = attributes["tableId"]
     dataset_ref = f"{attributes['projectId']}.{attributes['datasetId']}"
 
-    categories = CategoriasCadastro.get_all()
-    departments = DepartamentosCadastro.get_all()
-    checking_accounts = ContaCorrenteCadastro.get_all()
-    projects = ProjetosCadastro.get_all()
+    categories = categorias.get_all()
+    departments = departamentos.get_all()
+    checking_accounts = contas_correntes.get_all()
+    projects = projetos.get_all()
 
     create_table_if_not_exists(client=client,
                                table_id=table_id,
@@ -107,7 +107,7 @@ def migrate(event: dict, context: Context):
 
 
 def update_table(star_tables: StarSchemaTables, dataset_ref: str, table_id: str,
-    temp_table_id: str, paginator: OmiePaginator, start_date: date):
+    temp_table_id: str, paginator: PaginatorCamelCase, start_date: date):
     movements = paginator.concat_all_pages()
     logging.info('buscando clientes...')
     clients = get_clients(movements)
@@ -132,7 +132,7 @@ def insert_by_page(
     star_tables: StarSchemaTables,
     dataset_ref: str,
     table_id: str,
-    paginator: OmiePaginator
+    paginator: PaginatorCamelCase
 ):
     pages = [paginator.get_page(1)]
 
@@ -146,6 +146,7 @@ def insert_by_page(
             target=append_page, args=[page_number + 1, pages])
         get_next_page.start()
 
+        # noinspection PyTypeChecker
         page: MfListarResponse = pages[page_number - 1]
         resp = page['movimentos']
         logging.info(f'buscando clientes página {page_number}')
@@ -169,16 +170,16 @@ def insert_by_page(
 
 def convert_to_schema_rows(
     movements,
-    clients_to_search: list[ClientesCadastro],
+    clients_to_search: list[clientes],
     star_tables: StarSchemaTables
 ):
-    def bq_builder(m: MovimentosFinanceiros.Movimento):
-        return BQMovement.build(m,
-                                clients_to_search,
-                                star_tables.categories,
-                                star_tables.departments,
-                                star_tables.checking_accounts,
-                                star_tables.projects)
+    def bq_builder(m: movimentos_financeiros.Movimento):
+        return bq_movement.build(m,
+                                 clients_to_search,
+                                 star_tables.categories,
+                                 star_tables.departments,
+                                 star_tables.checking_accounts,
+                                 star_tables.projects)
 
     bigquery_rows = list(map(bq_builder, movements))
     if len(bigquery_rows) != len(movements):
@@ -194,7 +195,7 @@ def get_clients(movements: list[Movimento]):
     client_filter_array = list(
         map(lambda c: ClientesPorCodigo(codigo_cliente_omie=c),
             int_array))
-    return ClientesCadastro.get(
+    return clientes.get(
         ClientesListRequest(clientesPorCodigo=client_filter_array))
 
 

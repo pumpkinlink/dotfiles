@@ -3,8 +3,8 @@ from typing import TypedDict
 
 import requests
 
-from dto.OmieEndpoint import OmieRequestBody, OmiePageRequestSlugCase
-from utils.OmiePaginator import PaginatorSlugCase
+from dto.omie_endpoint import OmieRequestBody, OmiePageRequestSlugCase
+from utils.omie_paginator import PaginatorSlugCase
 
 URL = 'https://app.omie.com.br/api/v1/geral/clientes/'
 

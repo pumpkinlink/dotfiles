@@ -4,9 +4,9 @@ from typing import Literal, TypedDict, Callable, Any
 import requests
 from requests import Response
 
-from dto.OmieEndpoint import OmieRequestBody, OmieResponseBodyCamelCase, \
+from dto.omie_endpoint import OmieRequestBody, OmieResponseBodyCamelCase, \
     OmiePageRequestCamelCase
-from utils.OmiePaginator import PaginatorCamelCase
+from utils.omie_paginator import PaginatorCamelCase
 
 URL = 'https://app.omie.com.br/api/v1/financas/mf/'
 

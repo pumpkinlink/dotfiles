@@ -4,11 +4,13 @@ import logging
 from dataclasses import dataclass
 from datetime import datetime
 from itertools import chain
-from typing import Callable, Any
+from typing import Any
+from collections.abc import Callable
+
 
 from requests import Response
 
-from dto.OmieEndpoint import OmieResponseBodyCamelCase, \
+from dto.omie_endpoint import OmieResponseBodyCamelCase, \
     OmiePageRequestCamelCase, OmieResponseBodySlugCase, OmiePageRequestSlugCase
 
 
@@ -41,7 +43,7 @@ class PaginatorSlugCase(Paginator):
     first_page: OmieResponseBodySlugCase = None
 
     def __init__(self, request_params: OmiePageRequestSlugCase,
-        poster: Callable[[OmiePageRequestSlugCase], Response],
+        poster: Callable[..., Response],
         page_body_key: str,
         object_hook: Callable[[dict], Any | None] = None):
         self.poster = poster
@@ -96,7 +98,7 @@ class PaginatorCamelCase(Paginator):
     def __init__(
         self,
         request_params: OmiePageRequestCamelCase,
-        poster: Callable[[OmiePageRequestCamelCase], Response],
+        poster: Callable[..., Response],
         object_hook: Callable[[dict], Any | None],
         page_body_key: str,
     ):
