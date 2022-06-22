@@ -121,7 +121,7 @@ def bigquery_formatter(dct):
             "nDistrValor",
         ]:
             # Converte float para str, para que o Bigquery possa receber
-            # os valores das colunas DECIMAL/NUMERIC sem perda de precisão
+            # os valores das colunas tipo DECIMAL/NUMERIC sem perda de precisão
             dct[key] = str(value)
     return dct
 

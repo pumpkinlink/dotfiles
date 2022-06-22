@@ -19,11 +19,9 @@ from dto import (
     projetos,
     bq_movement,
 )
-from dto.bq_movement import partition_field, bigquery_formatter, \
-    OMIE_DATE_FORMAT
+from dto.bq_movement import partition_field, bigquery_formatter, OMIE_DATE_FORMAT
 from dto.clientes import ClientesListRequest, ClientesPorCodigo
-from dto.movimentos_financeiros import MfListarRequest, MfListarResponse, \
-    Movimento
+from dto.movimentos_financeiros import MfListarRequest, MfListarResponse, Movimento
 from utils.big_query_util import (
     create_table_if_not_exists,
     insert_rows_bq,
