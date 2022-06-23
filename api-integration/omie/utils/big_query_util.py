@@ -16,7 +16,7 @@ def create_table_if_not_exists(
     table_id: str,
     dataset_ref: str,
     schema: Sequence[SchemaField | Mapping[str, any]],
-    partitioning_field: str | None = None,
+    partitioning_field: str,
     clustering_fields: list[str] | None = None,
 ):
     try:
@@ -110,7 +110,7 @@ def merge_rows_bq(
     date_column = d_dt_pagamento
 
     fields = [field.name for field in table.schema]
-    source_alias = "source"
+    source_alias = "source_"
 
     sets = ", ".join([f"{field} = {source_alias}.{field}" for field in fields])
 
@@ -118,11 +118,15 @@ def merge_rows_bq(
     source = temp_table_ref
     start_date_iso = start_date.isoformat()
     # language=sql
-    query = f"""MERGE INTO `{target}` AS target
+    query = f"""
+MERGE INTO `{target}` AS target_
 USING `{source}` AS {source_alias}
-ON target.{id_} = {source_alias}.{id_}
-WHEN MATCHED AND {target}.{date_column} >= {start_date_iso} THEN
+ON target_.{id_} = {source_alias}.{id_} AND
+    target_.{date_column} >= '{start_date_iso}'
+WHEN MATCHED THEN
     UPDATE SET {sets}
-WHEN NOT MATCHED AND {target}.{date_column} >= {start_date_iso} THEN
+WHEN NOT MATCHED THEN
     INSERT ROW
 """
+    client.query(query).result()
+    logging.debug("Success merged to table {}".format(table.table_id))

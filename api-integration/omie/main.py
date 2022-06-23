@@ -5,6 +5,7 @@ from dataclasses import dataclass
 from datetime import datetime, timedelta, date
 from typing import TypedDict
 
+import coloredlogs
 from dateutil import parser as date_parser
 from google.cloud import bigquery
 from google.cloud.functions_v1.context import Context
@@ -22,23 +23,20 @@ from dto import (
 from dto.bq_movement import partition_field, bigquery_formatter, OMIE_DATE_FORMAT
 from dto.clientes import ClientesListRequest, ClientesPorCodigo
 from dto.movimentos_financeiros import MfListarRequest, MfListarResponse, Movimento
-from utils.big_query_util import (
-    create_table_if_not_exists,
-    insert_rows_bq,
-    merge_rows_bq,
-)
+from utils import big_query_util
 from utils.omie_paginator import PaginatorCamelCase
 
 client = bigquery.Client()
-debug = os.environ.get("DEBUG") == "1"
-logging.basicConfig(
+is_debug = os.environ.get("DEBUG") == "1"
+# logging.basicConfig(
+# )
+coloredlogs.install(
     format="%(asctime)s %(levelname)-8s %(message)s",
-    level=logging.INFO,
-    datefmt="%Y-%m-%d %H:%M:%S",
+    level=logging.DEBUG if is_debug else logging.INFO,
 )
 
 
-class Attributes(TypedDict, total=False):
+class Attributes(TypedDict):
     """
     map (key: string, value: string)
     Attributes for this message. If this field is empty, the message must contain non-empty data. This can be used to filter messages on the subscription.
@@ -65,7 +63,7 @@ class StarSchemaTables:
 def migrate(event: dict, context: Context):
     attributes: Attributes = event["attributes"]
     end_date = date_parser.parse(context.timestamp).date()
-    start_date = end_date - timedelta(days=int(attributes["daysInterval"]))
+    start_date = end_date - timedelta(days=int(attributes["daysInterval"]) - 1)
     start_date_br = format(start_date, OMIE_DATE_FORMAT)
     end_date_br = format(end_date, OMIE_DATE_FORMAT)
     request_body = MfListarRequest(
@@ -77,6 +75,9 @@ def migrate(event: dict, context: Context):
     paginator = movimentos_financeiros.get_paginator(
         request=request_body, object_hook=bigquery_formatter
     )
+    if paginator.first_page["nTotRegistros"] == 0:
+        logging.info("Consulta sem resultados. Saindo...")
+        return
 
     table_id = attributes["tableId"]
     dataset_ref = f"{attributes['projectId']}.{attributes['datasetId']}"
@@ -86,7 +87,7 @@ def migrate(event: dict, context: Context):
     checking_accounts = contas_correntes.get_all()
     projects = projetos.get_all()
 
-    create_table_if_not_exists(
+    big_query_util.create_table_if_not_exists(
         client=client,
         table_id=table_id,
         dataset_ref=dataset_ref,
@@ -94,7 +95,7 @@ def migrate(event: dict, context: Context):
         partitioning_field=partition_field,
     )
 
-    if attributes["isInitialLoad"] == "True":
+    if attributes["isInitialLoad"] == "true":
         insert_by_page(
             StarSchemaTables(categories, departments, checking_accounts, projects),
             dataset_ref=dataset_ref,
@@ -128,7 +129,10 @@ def update_table(
         movements=movements, clients_to_search=clients, star_tables=star_tables
     )
     logging.info(f"Escrevendo {len(bigquery_rows)} linhas no banco...")
-    bq_errors = merge_rows_bq(
+    big_query_util.create_table_if_not_exists(
+        client, temp_table_id, dataset_ref, schema.movimentos_schema, partition_field
+    )
+    big_query_util.merge_rows_bq(
         client=client,
         table_id=table_id,
         temp_table_id=temp_table_id,
@@ -137,7 +141,6 @@ def update_table(
         start_date=start_date,
     )
     logging.info(f"Escreveu {len(bigquery_rows)} linhas com sucesso!")
-    handle_bq_errors(bq_errors)
 
 
 def insert_by_page(
@@ -170,7 +173,7 @@ def insert_by_page(
         )
 
         logging.info(f"Escrevendo página {page_number} no banco...")
-        bq_errors = insert_rows_bq(
+        bq_errors = big_query_util.insert_rows_bq(
             client=client,
             table_id=table_id,
             dataset_ref=dataset_ref,
@@ -223,17 +226,17 @@ def handle_bq_errors(bq_errors):
         raise Exception(message)
 
 
-if debug:
-    migrate(
-        {
-            "attributes": {
-                "tableId": "movimentos",
-                "datasetId": "ideamaker_raw_financial",
-                "projectId": "idea-data-homol",
-                "startDate": "2022-01-01",
-                "isInitialLoad": "True",
-            }
-        },
-        Context(timestamp=(datetime.now() - timedelta(days=1)).isoformat())
-        # Context(timestamp='2022-01-01')
-    )
+if __name__ == "__main__":
+    if is_debug:
+        attributes_: Attributes = {
+            "tableId": "movimentos-teste",
+            "tempTableId": "movimentos-teste-stage",
+            "daysInterval": "2",
+            "isInitialLoad": "false",
+            "datasetId": "ideamaker_raw_financial",
+            "projectId": "idea-data-homol",
+        }
+        migrate(
+            event={"attributes": attributes_},
+            context=Context(timestamp=datetime.now().isoformat()),
+        )

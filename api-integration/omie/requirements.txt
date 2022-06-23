@@ -3,9 +3,7 @@ datetime~=4.4
 google-cloud-logging
 google-cloud-bigquery
 google-cloud-pubsub
-facebook_business
-dataclass-wizard
-pandas==1.4.*
+coloredlogs
 
 
 # requests~=2.27.1
