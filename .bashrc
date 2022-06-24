@@ -2,22 +2,71 @@
 # see /usr/share/doc/bash/examples/startup-files (in the package bash-doc)
 # for examples
 
+
 # If not running interactively, don't do anything
 case $- in
     *i*) ;;
       *) return;;
 esac
 
+################   LIQUID PROMPT #################
+#source ~/liquidprompt/liquidprompt
+
+set enable-bracketed-paste on
+
+## FZF
+# Setting fd as the default source for fzf
+export FZF_DEFAULT_COMMAND='fdfind --type f'
+# To apply the command to CTRL-T as well
+export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
+
+stty -ixon
+shopt -s autocd
+
+LIGHT_BLUE='\e[1;34m'
+
+LIGHT_GREEN='\e[1;32m'
+
+NC='\e[0m' # No Color
+
+export GIT_PS1_SHOWCOLORHINTS=1
+
+export GIT_PS1_SHOWDIRTYSTATE=1
+
+# export GIT_PS1_SHOWUNTRACKEDFILES=1 # <- lento
+
+# Allow the user to set the title.
+function title {
+   echo -ne "\033]0;$1 (@$HOSTNAME)\007"
+}
+
+export PROMPT_COMMAND='__git_ps1 "${debian_chroot:+($debian_chroot)}$LIGHT_GREEN\u@\h$NC:$LIGHT_CYAN\w$NC" "\n$ "; title $(dirs +0)'
+
+######## MOST #############
+#export PAGER="most"
+
+
+#############
+alias g=git
+alias faustop='htop'
+alias topper='htop'
+alias topperson='htop'
+alias topzera='htop'
+alias info='info --vi-keys'
+alias ccat='highlight --out-format=ansi'
+alias vpncompsis='netExtender --username=deoliveira --domain=intranet.local --auto-reconnect --dns-only-local 189.127.15.34:4433'
+
+
 # don't put duplicate lines or lines starting with space in the history.
 # See bash(1) for more options
-HISTCONTROL=ignoreboth
+HISTCONTROL=ignoredups
 
 # append to the history file, don't overwrite it
 shopt -s histappend
 
 # for setting history length see HISTSIZE and HISTFILESIZE in bash(1)
-HISTSIZE=1000
-HISTFILESIZE=2000
+HISTSIZE=
+HISTFILESIZE=
 
 # check the window size after each command and, if necessary,
 # update the values of LINES and COLUMNS.
@@ -25,7 +74,7 @@ shopt -s checkwinsize
 
 # If set, the pattern "**" used in a pathname expansion context will
 # match all files and zero or more directories and subdirectories.
-#shopt -s globstar
+shopt -s globstar
 
 # make less more friendly for non-text input files, see lesspipe(1)
 [ -x /usr/bin/lesspipe ] && eval "$(SHELL=/bin/sh lesspipe)"
@@ -64,13 +113,13 @@ fi
 unset color_prompt force_color_prompt
 
 # If this is an xterm set the title to user@host:dir
-case "$TERM" in
-xterm*|rxvt*)
-    PS1="\[\e]0;${debian_chroot:+($debian_chroot)}\u@\h: \w\a\]$PS1"
-    ;;
-*)
-    ;;
-esac
+#case "$TERM" in
+#xterm*|rxvt*)
+    #PS1="\[\e]0;${debian_chroot:+($debian_chroot)}\u@\h: \w\a\]$PS1"
+    #;;
+#*)
+    #;;
+#esac
 
 # enable color support of ls and also add handy aliases
 if [ -x /usr/bin/dircolors ]; then
@@ -112,3 +161,82 @@ if ! shopt -oq posix; then
     . /etc/bash_completion
   fi
 fi
+
+
+
+# [ "$DISPLAY" ] && xset b 50 20000 1
+
+shopt -s cdspell
+
+[ -s "/home/denis/.dnx/dnvm/dnvm.sh" ] && . "/home/denis/.dnx/dnvm/dnvm.sh" # Load dnvm
+
+# added by Miniconda2 4.1.11 installer
+export PATH="/home/denis/miniconda2/bin:$PATH"
+
+export TWITTER_CONSUMER_KEY="EMS50BQBYXJ4j2zgrF82Nmcl6"
+export TWITTER_CONSUMER_SECRET="vdi5Oa3JpogxCpuJfrQ5Yy5n4nuyAwgnKatmddd7G6kJRIkjty"
+export TWITTER_ACCESS_TOKEN="11019442-xH2cidSPIMh1dOFRcURvENT9V9YDx1J1rH1t66MdU"
+export TWITTER_ACCESS_TOKEN_SECRET="0bFQZytd4NKk4De2cKxfaPWzlY25rbC4RRPH8py7cJmFu"
+
+
+# fzf
+set -o vi
+source /usr/share/doc/fzf/examples/key-bindings.bash
+source /usr/share/doc/fzf/examples/completion.bash
+
+export LESS="--ignore-case --status-column --LONG-PROMPT --HILITE-UNREAD --RAW-CONTROL-CHARS"
+
+
+# termcap terminfo
+# ----------------------------------------------------
+# mb      blink     start blink
+# md      bold      start bold
+#
+# so      smso      start standout (reverse video)
+# se      rmso      stop standout
+#
+# us      smul      start underline
+# ue      rmul      stop underline
+#
+# me      sgr0      turn off bold, blink and underline
+
+
+# 1 -> red
+# 2 -> green
+# 3 -> yellow
+man() {
+    LESS_TERMCAP_md=$(tput bold; tput setaf 1) \
+    LESS_TERMCAP_me=$(tput sgr0) \
+    \
+    LESS_TERMCAP_us=$(tput smul; tput setaf 2) \
+    LESS_TERMCAP_ue=$(tput rmul; tput sgr0) \
+    \
+    LESS_TERMCAP_so=$(tput smso; tput setaf 3) \
+    LESS_TERMCAP_se=$(tput rmso; tput sgr0) \
+    command man "$@"
+}
+
+export LD_PRELOAD=/usr/lib/x86_64-linux-gnu/libgtk3-nocsd.so.0
+
+# add laravel to path
+export PATH="/home/denis/.config/composer/vendor/bin:$PATH"
+
+export NVM_DIR="$HOME/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
+[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
+
+# >>> conda initialize >>>
+# !! Contents within this block are managed by 'conda init' !!
+__conda_setup="$('/home/denis/Downloads/.miniconda/bin/conda' 'shell.bash' 'hook' 2> /dev/null)"
+if [ $? -eq 0 ]; then
+    eval "$__conda_setup"
+else
+    if [ -f "/home/denis/Downloads/.miniconda/etc/profile.d/conda.sh" ]; then
+        . "/home/denis/Downloads/.miniconda/etc/profile.d/conda.sh"
+    else
+        export PATH="/home/denis/Downloads/.miniconda/bin:$PATH"
+    fi
+fi
+unset __conda_setup
+# <<< conda initialize <<<
+

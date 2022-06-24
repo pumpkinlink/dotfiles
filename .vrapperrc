@@ -6,5 +6,6 @@ set clipboard=unnamedplus
 set wrapscan
 set nocleanindent
 set startnormalmode
-nnoremap ; :
-nnoremap : ;
+set hlsearch
+"nnoremap ; :
+"nnoremap : ;
