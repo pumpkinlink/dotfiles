@@ -1,0 +1,45 @@
+[user]
+	email = pumpkin_link@yahoo.com.br
+	name = Denis Franco
+[help]
+	autocorrect = 1
+[core]
+	autocrlf = input
+	editor = vi
+[credential]
+	helper = cache --timeout=720000
+[push]
+	default = current
+[alias]
+	co = checkout
+	br = branch
+	ci = commit
+	st = status
+	unstage = reset HEAD --
+	df = diff
+[pager]
+    # log = diff-highlight | less --tabs=16
+    # show = diff-highlight | less --tabs=16
+    # diff = diff-highlight | less --tabs=16
+
+[diff "xlsx"]
+    binary = True
+    textconv = python ~/git_diff_xlsx.py
+[diff "xlsx2csv"]
+    textconv = xlsx2csv --delimiter=,
+    binary = true
+[diff "zip"]
+	textconv = unzip -c -a
+[diff "zipxml"]
+	textconv = unzip -c -a
+	command = xmldiff -f xml -p \"$REMOTE\" \"$LOCAL\"
+[diff "xml"]
+#    command = xmldiff -f xml -p "$REMOTE" "$LOCAL"
+    #command = echo $REMOTE $LOCAL
+    #command = xmldiff -f xml -p \"$REMOTE\" \"$LOCAL\"
+    #prompt = false
+[diff "pandoc"]
+    textconv = pandoc --to=markdown
+    prompt = false
+[init]
+	defaultBranch = master
