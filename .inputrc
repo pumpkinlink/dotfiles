@@ -1,4 +1,7 @@
 $include /etc/inputrc
+set editing-mode vi
+set show-mode-in-prompt on
+set vi-cmd-mode-string (CMD)
 set completion-ignore-case On
 set completion-prefix-display-length 4
 set show-all-if-ambiguous Off

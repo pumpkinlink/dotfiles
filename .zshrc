@@ -1,30 +1,33 @@
 # If you come from bash you might have to change your $PATH.
 # export PATH=$HOME/bin:/usr/local/bin:$PATH
+export PATH=$HOME/.local/bin:$PATH
+
 
 # alias tmux='TERM=xterm-88color tmux'
 # alias tmux='export TERM_PROGRAM && tmux'
 
 # TMUX
-if [[ "$TERMINAL_EMULATOR" != "JetBrains-JediTerm" ]] && [[ ! -n "`env|grep INSIDE_NAUTILUS_PYTHON`" ]] && which tmux >/dev/null 2>&1 ; then
-    #if not inside a tmux session, and if no session is started, start a new session
-    # test -z "$TMUX" && (tmux attach || tmux new-session)
-    # test -z "$TMUX" && (tmux)
-	if [ -z "$TMUX" ]; then
-		attach_session=$(tmux 2> /dev/null ls -F \
-			'#{session_attached} #{?#{==:#{session_last_attached},},1,#{session_last_attached}} #{session_id}' |
-			awk '/^0/ { if ($2 > t) { t = $2; s = $3 } }; END { if (s) printf "%s", s }')
-
-		if [ -n "$attach_session" ]; then
-			tmux attach -t "$attach_session"
-		else
-			tmux
-		fi
-	fi
-fi
+#	if [[ "$TERMINAL_EMULATOR" != "JetBrains-JediTerm" ]] && [[ ! -n "`env|grep INSIDE_NAUTILUS_PYTHON`" ]] && which tmux >/dev/null 2>&1 ; then
+    #	#if not inside a tmux session, and if no session is started, start a new session
+    #	# test -z "$TMUX" && (tmux attach || tmux new-session)
+    #	# test -z "$TMUX" && (tmux)
+	#	if [ -z "$TMUX" ]; then
+		#	attach_session=$(tmux 2> /dev/null ls -F \
+			#	'#{session_attached} #{?#{==:#{session_last_attached},},1,#{session_last_attached}} #{session_id}' |
+			#	awk '/^0/ { if ($2 > t) { t = $2; s = $3 } }; END { if (s) printf "%s", s }')
+#	
+		#	if [ -n "$attach_session" ]; then
+			#	tmux attach -t "$attach_session"
+		#	else
+			#	tmux
+		#	fi
+	#	fi
+#	fi
 #npm set prefix ~/.npm;
 path+=$HOME/.npm/bin; path+=./node_modules/.bin
 
 bindkey -v
+export EDITOR=vi
 # Use vim cli mode
 # bindkey '^P' up-history
 # bindkey '^N' down-history
@@ -44,7 +47,7 @@ bindkey '^w' backward-kill-word
 
 
 # Path to your oh-my-zsh installation.
-export ZSH="/home/denis/.oh-my-zsh"
+export ZSH="/home/denisfranco/.oh-my-zsh"
 
 # Set name of the theme to load --- if set to "random", it will
 # load a random theme each time oh-my-zsh is loaded, in which case,
@@ -304,14 +307,10 @@ alias alert='notify-send --urgency=low -i "$([ $? = 0 ] && echo terminal || echo
 
 alias bat=batcat
 
-#THIS MUST BE AT THE END OF THE FILE FOR SDKMAN TO WORK!!!
-export SDKMAN_DIR="/home/deoliveira/.sdkman"
-[[ -s "/home/deoliveira/.sdkman/bin/sdkman-init.sh" ]] && source "/home/deoliveira/.sdkman/bin/sdkman-init.sh"
 
 
 export LD_PRELOAD=/usr/lib/x86_64-linux-gnu/libgtk3-nocsd.so.0
 
 #source /usr/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
-eval "$(/home/denis/Downloads/.miniconda/bin/conda shell.zsh hook)"
-
+#eval "$(/home/denisfranco/Downloads/.miniconda/bin/conda shell.zsh hook)"
 
