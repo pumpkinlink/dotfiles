@@ -54,7 +54,6 @@ alias topperson='htop'
 alias topzera='htop'
 alias info='info --vi-keys'
 alias ccat='highlight --out-format=ansi'
-alias vpncompsis='netExtender --username=deoliveira --domain=intranet.local --auto-reconnect --dns-only-local 189.127.15.34:4433'
 
 
 # don't put duplicate lines or lines starting with space in the history.
@@ -168,16 +167,6 @@ fi
 
 shopt -s cdspell
 
-[ -s "/home/denis/.dnx/dnvm/dnvm.sh" ] && . "/home/denis/.dnx/dnvm/dnvm.sh" # Load dnvm
-
-# added by Miniconda2 4.1.11 installer
-export PATH="/home/denis/miniconda2/bin:$PATH"
-
-export TWITTER_CONSUMER_KEY="EMS50BQBYXJ4j2zgrF82Nmcl6"
-export TWITTER_CONSUMER_SECRET="vdi5Oa3JpogxCpuJfrQ5Yy5n4nuyAwgnKatmddd7G6kJRIkjty"
-export TWITTER_ACCESS_TOKEN="11019442-xH2cidSPIMh1dOFRcURvENT9V9YDx1J1rH1t66MdU"
-export TWITTER_ACCESS_TOKEN_SECRET="0bFQZytd4NKk4De2cKxfaPWzlY25rbC4RRPH8py7cJmFu"
-
 
 # fzf
 set -o vi
@@ -218,25 +207,7 @@ man() {
 
 export LD_PRELOAD=/usr/lib/x86_64-linux-gnu/libgtk3-nocsd.so.0
 
-# add laravel to path
-export PATH="/home/denis/.config/composer/vendor/bin:$PATH"
 
-export NVM_DIR="$HOME/.nvm"
-[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
-[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
-
-# >>> conda initialize >>>
-# !! Contents within this block are managed by 'conda init' !!
-__conda_setup="$('/home/denis/Downloads/.miniconda/bin/conda' 'shell.bash' 'hook' 2> /dev/null)"
-if [ $? -eq 0 ]; then
-    eval "$__conda_setup"
-else
-    if [ -f "/home/denis/Downloads/.miniconda/etc/profile.d/conda.sh" ]; then
-        . "/home/denis/Downloads/.miniconda/etc/profile.d/conda.sh"
-    else
-        export PATH="/home/denis/Downloads/.miniconda/bin:$PATH"
-    fi
-fi
-unset __conda_setup
-# <<< conda initialize <<<
-
+#export NVM_DIR="$HOME/.nvm"
+#[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
+#[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
