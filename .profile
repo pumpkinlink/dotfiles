@@ -24,14 +24,12 @@ if [ -d "$HOME/bin" ] ; then
     PATH="$HOME/bin:$PATH"
 fi
 PATH="$HOME/bin:$HOME/.local/bin:$PATH"
-PATH="$HOME/.npm_modules/bin:$PATH"
+#PATH="$HOME/.npm_modules/bin:$PATH"
 
 #IBUS workaround for IntelliJ IDEA
 
 #export IBUS_ENABLE_SYNC_MODE=1
 
-# Ubuntu make installation of Android SDK
-#PATH=$ANDROID_HOME/tools:$ANDROID_HOME/platform-tools:$PATH
 
 export QT_QPA_PLATFORMTHEME="qt5ct"
 export MOSH_PREDICTION_DISPLAY=always
@@ -39,8 +37,6 @@ export MOSH_PREDICTION_DISPLAY=always
 # Golang path
 #export GOPATH=$HOME/golang
 #export PATH=$GOPATH/bin:$PATH
-# Ubuntu make installation of Ubuntu Make binary symlink
-#PATH=/home/denis/.local/share/umake/bin:$PATH
 
 #export LESS_TERMCAP_mb=$'\e[1;32m'
 #NAO USAR!! causa erro no login!!!
