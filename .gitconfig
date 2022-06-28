@@ -2,7 +2,7 @@
 	email = pumpkin_link@yahoo.com.br
 	name = Denis Franco
 [help]
-	autocorrect = 1
+	autocorrect = 20
 [core]
 	autocrlf = input
 	editor = vi
