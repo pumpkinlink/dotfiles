@@ -28,22 +28,21 @@ detalhes = [
     field(d_dt_pagamento, DATE),
     field("nCodCliente", INTEGER),
     field("cCPFCNPJCliente", STRING),
-    field("razao_social_cliente", STRING),
-    # cliente
+    field("razao_social_cliente", STRING),  # cliente
+    field("nome_fantasia_cliente", STRING),  # cliente
     field("nCodCtr", INTEGER),
     field("cNumCtr", STRING),
     field("nCodOS", INTEGER),
     field("cNumOS", STRING),
     field("nCodCC", INTEGER),
-    field("descricao_cc", STRING),
-    # conta corrente
+    field("descricao_cc", STRING),  # conta corrente
     field("cStatus", STRING),
     field("cNatureza", STRING),
     field("cTipo", STRING),
     field("cOperacao", STRING),
     field("cNumDocFiscal", STRING),
     field("cCodCateg", STRING),
-    field("descricao_categoria", STRING),
+    field("descricao_categoria", STRING),  # categoria
     field("cNumParcela", STRING),
     field("nValorTitulo", NUMERIC),
     field("nValorPIS", NUMERIC),
@@ -59,8 +58,7 @@ detalhes = [
     field("nValorINSS", NUMERIC),
     field("cRetINSS", STRING),
     field("cCodProjeto", INTEGER),
-    field("nome_projeto", STRING),
-    # projeto
+    field("nome_projeto", STRING),  # projeto
     field("observacao", STRING),
     field("cCodVendedor", INTEGER),
     field("nCodComprador", INTEGER),
@@ -118,3 +116,6 @@ movimentos_schema: list[SchemaField] = [
     departamentos,
     categorias,
 ]
+__all_fields = [*detalhes, *resumo, *departamentos.fields, *categorias.fields]
+numeric_field_names = [f.name for f in __all_fields if f.field_type == NUMERIC]
+date_field_names = [f.name for f in __all_fields if f.field_type == DATE]

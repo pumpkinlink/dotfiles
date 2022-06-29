@@ -1,6 +1,7 @@
 import datetime
-import re
+from typing import TypedDict
 
+import schema
 from dto import categorias, movimentos_financeiros, departamentos
 from dto.clientes import ClientesCadastroResumido
 from dto.contas_correntes import ContaCorrente
@@ -17,8 +18,14 @@ class BQDepartment(movimentos_financeiros.Categoria):
     descricao_departamento: str | None
 
 
-class BQMovement(movimentos_financeiros.Detalhes, movimentos_financeiros.Resumo):
+class BQClient(TypedDict):
     razao_social_cliente: str | None
+    nome_fantasia_cliente: str | None
+
+
+class BQMovement(
+    movimentos_financeiros.Detalhes, movimentos_financeiros.Resumo, BQClient
+):
     descricao_cc: str | None
     nome_projeto: str | None
     descricao_categoria: str | None
@@ -26,7 +33,7 @@ class BQMovement(movimentos_financeiros.Detalhes, movimentos_financeiros.Resumo)
     categorias: list[BQCategory]
 
 
-partition_field = "dDtPagamento"
+partition_field = schema.d_dt_pagamento
 
 
 def get_root_category(
@@ -98,28 +105,11 @@ def get_departments_array(
 
 def bigquery_formatter(dct):
     for key, value in dct.items():
-        if isinstance(value, str) and re.search("^dDt", key):
+        if isinstance(value, str) and key in schema.date_field_names:
             dct[key] = (
                 datetime.datetime.strptime(value, OMIE_DATE_FORMAT).date().isoformat()
             )
-        elif isinstance(value, float) and key in [
-            "nValorTitulo",
-            "nValorPIS",
-            "nValorCOFINS",
-            "nValorCSLL",
-            "nValorIR",
-            "nValorISS",
-            "nValorINSS",
-            "nValorMovCC",
-            "nValPago",
-            "nValAberto",
-            "nDesconto",
-            "nJuros",
-            "nMulta",
-            "nValLiquido",
-            "nDistrPercentual",
-            "nDistrValor",
-        ]:
+        elif isinstance(value, float) and key in schema.numeric_field_names:
             # Converte float para str, para que o Bigquery possa receber
             # os valores das colunas tipo DECIMAL/NUMERIC sem perda de precisão
             dct[key] = str(value)
@@ -134,10 +124,12 @@ def build(
     all_checking_accounts: list[ContaCorrente],
     all_projects: list[Projeto],
 ):
+    client_names = get_client_names(m, all_clients)
     row: BQMovement = {
         **m["detalhes"],
         **m["resumo"],
-        "razao_social_cliente": get_client_name(m, all_clients),
+        "razao_social_cliente": client_names["razao_social_cliente"],
+        "nome_fantasia_cliente": client_names["nome_fantasia_cliente"],
         "descricao_categoria": get_root_category(m, all_categories),
         "descricao_cc": get_account_name(m, all_checking_accounts),
         "nome_projeto": get_project_name(m, all_projects),
@@ -148,9 +140,9 @@ def build(
     return row
 
 
-def get_client_name(
+def get_client_names(
     movement: movimentos_financeiros.Movimento, clients: list[ClientesCadastroResumido]
-) -> str | None:
+) -> BQClient:
     try:
         code = movement["detalhes"]["nCodCliente"]
 
@@ -159,10 +151,13 @@ def get_client_name(
                 return False
             return client["codigo_cliente"] == code
 
-        result = next(filter(matches, clients), {})
-        return result["razao_social"]
+        result: ClientesCadastroResumido = next(filter(matches, clients), {})
+        return BQClient(
+            razao_social_cliente=result["razao_social"],
+            nome_fantasia_cliente=result["nome_fantasia"],
+        )
     except KeyError:
-        return None
+        return BQClient(nome_fantasia_cliente=None, razao_social_cliente=None)
 
 
 def get_account_name(
